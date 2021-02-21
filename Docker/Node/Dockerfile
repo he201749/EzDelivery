@@ -6,8 +6,8 @@ RUN apt-get update
 
 RUN mkdir /home/clone
 
-RUN cd /home/clone && git clone https://github.com/GonoGoat/projetIntegrationGrp6
+RUN cd /home/clone && git clone https://github.com/he201749/EzDelivery.git
 
-RUN cp /home/clone/projetIntegrationGrp6/Node.js/* /home/projet -r
+RUN cp /home/clone/EzDelivery/BackEnd/* /home/projet -r
 
 RUN npm install pm2 -g
