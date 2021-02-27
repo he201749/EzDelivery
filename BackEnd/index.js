@@ -10,8 +10,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const key = fs.readFileSync(path.join(__dirname, 'certificate', 'server.key'));
-const cert = fs.readFileSync(path.join(__dirname, 'certificate', 'server.cert'));
+const key = fs.readFileSync(path.join(__dirname,'server.key'));
+const cert = fs.readFileSync(path.join(__dirname,'server.cert'));
 
 const options = { key, cert };
 
@@ -27,3 +27,36 @@ const pool = new Pool({
     password: "QW228fjr78gWxU",
     port: 5432
 });
+
+app.get("/api/utilisateurs/:mail", (req, res) => {
+    const { mail } = req.params;
+
+    pool.query(
+        "SELECT nom, prenom, mail FROM utilisateurs WHERE mail = $1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                throw error;
+            }
+
+            res.status(200).json(results.rows);
+        }
+    );
+});
+
+app.get("/api/livraisons/:boite", (req, res) => {
+    const { boite } = req.params;
+
+    pool.query(
+        "SELECT numColis FROM livraisons WHERE boite = $1",
+        [boite],
+        (error, results) => {
+            if (error) {
+                throw error;
+            }
+
+            res.status(200).json(results.rows);
+        }
+    );
+});
+
