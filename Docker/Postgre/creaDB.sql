@@ -24,12 +24,13 @@ ALTER TABLE boites OWNER to "admin";
 
 CREATE TABLE livraisons (
    id   	SERIAL       		NOT NULL,
+   numColis           varchar(1000)     	NOT NULL,
    utilisateur  integer 		NOT NULL,
    boite    	integer 		NOT NULL,                  
    dateDebut  	date 			NOT NULL,
    dateFin  	date 			NOT NULL,
    statut       integer     		NOT NULL,
-   cadeau	integer			NOT NULL,
+   cadeau	integer			NOT NULL,	
    CONSTRAINT livraisons_pk PRIMARY KEY (id),
    CONSTRAINT fk_livraisons_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(id) ON UPDATE NO ACTION ON DELETE CASCADE,
    CONSTRAINT fk_livraisons_boites FOREIGN KEY(boite) REFERENCES boites(id) ON UPDATE NO ACTION ON DELETE CASCADE
