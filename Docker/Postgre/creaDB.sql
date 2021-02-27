@@ -1,7 +1,7 @@
 /****************Utilisateurs********************/
 
 CREATE TABLE utilisateurs(
-   id   	SERIAL       		NOT NULL,
+   id   	SERIAL,
    nom    	varchar(1000) 		NOT NULL,
    prenom    	varchar(1000) 		NOT NULL,                  
    mail  	varchar(1000) 		NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE utilisateurs(
 /****************Boites********************/
 
 CREATE TABLE boites (
-   id   	SERIAL       		NOT NULL,                
+   id   	SERIAL,                
    mdp  	varchar(1000) 		NOT NULL,
    ip           varchar(1000)     	NOT NULL,
    CONSTRAINT boites_pk PRIMARY KEY (id)
@@ -21,8 +21,8 @@ CREATE TABLE boites (
 /****************Livraisons********************/
 
 CREATE TABLE livraisons (
-   id   	SERIAL       		NOT NULL,
-   numColis           varchar(1000)     	NOT NULL,
+   id   	SERIAL,
+   numColis     varchar(1000)     	NOT NULL,
    utilisateur  integer 		NOT NULL,
    boite    	integer 		NOT NULL,                  
    dateDebut  	date 			NOT NULL,
