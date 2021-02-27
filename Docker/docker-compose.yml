@@ -23,8 +23,6 @@ services :
         build : "./Node"
         container_name: api
         tty: true
-        volumes:
-         - /home/projet/node/:/home/projet
         ports:
          - "8080:8080"
         depends_on :
