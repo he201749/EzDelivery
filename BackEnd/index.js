@@ -1,3 +1,5 @@
+
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -15,14 +17,18 @@ const cert = fs.readFileSync(path.join(__dirname,'server.cert'));
 
 const options = { key, cert };
 
-https.createServer(options, app).listen(8080, () => {
-    console.log('App is running ! Go to https://localhost:8080');
+http.createServer(app).listen(8080, () => {
+    console.log('App is running ! Go to http://localhost:8080');
+});
+
+https.createServer(options, app).listen(4433, () => {
+    console.log('App is running ! Go to https://localhost:4433');
 });
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
     user: "admin",
-    host: "51.91.102.255",
+    host: "192.168.1.22",
     database: "ezdelivery",
     password: "QW228fjr78gWxU",
     port: 5432
