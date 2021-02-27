@@ -22,7 +22,7 @@ https.createServer(options, app).listen(8080, () => {
 const Pool = require("pg").Pool;
 const pool = new Pool({
     user: "admin",
-    host: "192.168.1.22",
+    host: "51.91.102.255",
     database: "ezdelivery",
     password: "QW228fjr78gWxU",
     port: 5432
