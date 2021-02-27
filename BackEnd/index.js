@@ -17,7 +17,7 @@ const cert = fs.readFileSync(path.join(__dirname,'server.cert'));
 const options = { key, cert };
 
 https.createServer(options, app).listen(8080, () => {
-    console.log('App is running ! Go to https://localhost:4433');
+    console.log('App is running ! Go to https://localhost:8080');
 });
 
 const Pool = require("pg").Pool;
