@@ -12,3 +12,6 @@ RUN cp /home/clone/EzDelivery/BackEnd/* /home/projet -r
 
 RUN npm install pm2 -g
 
+RUN cd /home/projet
+
+RUN npm run start
