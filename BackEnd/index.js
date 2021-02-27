@@ -1,5 +1,4 @@
 
-const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -17,11 +16,7 @@ const cert = fs.readFileSync(path.join(__dirname,'server.cert'));
 
 const options = { key, cert };
 
-http.createServer(app).listen(8080, () => {
-    console.log('App is running ! Go to http://localhost:8080');
-});
-
-https.createServer(options, app).listen(4433, () => {
+https.createServer(options, app).listen(8080, () => {
     console.log('App is running ! Go to https://localhost:4433');
 });
 
