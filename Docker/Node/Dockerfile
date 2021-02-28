@@ -1,12 +1,10 @@
 FROM node:latest
 
-WORKDIR /home/projet
-
 RUN apt-get update
 
-COPY ../../BackEnd /home/projet
+COPY ../../BackEnd /
 
-RUN cd /home/projet/BackEnd
+RUN cd /BackEnd
 
 RUN npm install
 
