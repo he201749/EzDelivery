@@ -2,9 +2,13 @@ FROM node:latest
 
 RUN apt-get update
 
-RUN git clone https://github.com/he201749/EzDelivery.git
+RUN mkdir launch
 
-WORKDIR /EzDelivery/BackEnd
+RUN git clone https://github.com/he201749/EzDelivery.git 
+
+RUN cp EzDelivery/BackEnd/* /launch -r
+
+RUN cd launch
 
 RUN npm run start
 

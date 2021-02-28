@@ -37,10 +37,10 @@ app.get("/api/utilisateurs/:mail", (req, res) => {
         [mail],
         (error, results) => {
             if (error) {
-                throw error;
+                return res.send(error);
             }
 
-            res.status(200).json(results.rows);
+            return res.send(results.rows);
         }
     );
 });
@@ -53,10 +53,10 @@ app.get("/api/livraisons/:boite", (req, res) => {
         [boite],
         (error, results) => {
             if (error) {
-                throw error;
+                return res.send(error);
             }
 
-            res.status(200).json(results.rows);
+            return res.send(results.rows);
         }
     );
 });
