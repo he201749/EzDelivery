@@ -2,9 +2,9 @@ FROM node:latest
 
 RUN apt-get update
 
-COPY ../../BackEnd /
+COPY git clone https://github.com/he201749/EzDelivery.git
 
-RUN cd /BackEnd
+RUN cd /EzDelivery/BackEnd
 
 RUN npm install
 
