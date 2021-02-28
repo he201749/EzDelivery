@@ -8,7 +8,7 @@ CREATE TABLE utilisateurs(
    mdp          varchar(1000)     	NOT NULL,
    CONSTRAINT utilisateurs_pk PRIMARY KEY (id)
 );
-ALTER TABLE utilisateurs OWNER to "admin";
+
 /****************Boites********************/
 
 CREATE TABLE boites (
@@ -17,7 +17,7 @@ CREATE TABLE boites (
    ip           varchar(1000)     	NOT NULL,
    CONSTRAINT boites_pk PRIMARY KEY (id)
 );
-ALTER TABLE boites OWNER to "admin";
+
 /****************Livraisons********************/
 
 CREATE TABLE livraisons (
@@ -33,7 +33,7 @@ CREATE TABLE livraisons (
    CONSTRAINT fk_livraisons_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(id) ON UPDATE NO ACTION ON DELETE CASCADE,
    CONSTRAINT fk_livraisons_boites FOREIGN KEY(boite) REFERENCES boites(id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
-ALTER TABLE livraisons OWNER to "admin";
+
 /****************Acces********************/
 
 CREATE TABLE acces (
@@ -44,4 +44,3 @@ CREATE TABLE acces (
    CONSTRAINT fk_acces_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(id) ON UPDATE NO ACTION ON DELETE CASCADE,
    CONSTRAINT fk_acces_boites FOREIGN KEY(boite) REFERENCES boites(id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
-ALTER TABLE boites OWNER to "admin";
