@@ -4,15 +4,9 @@ WORKDIR /home/projet
 
 RUN apt-get update
 
-RUN mkdir /home/clone
+COPY ../../BackEnd /home/projet
 
-RUN cd /home/clone 
-
-RUN git clone https://github.com/he201749/EzDelivery.git
-
-RUN cp /home/clone/EzDelivery/BackEnd/* /home/projet -r
-
-RUN cd /home/projet
+RUN cd /home/projet/BackEnd
 
 RUN npm install
 
