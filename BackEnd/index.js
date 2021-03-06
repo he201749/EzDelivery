@@ -49,7 +49,7 @@ app.get("/api/livraisons/:boite", (req, res) => {
     const { boite } = req.params;
 
     pool.query(
-        "SELECT numColis FROM livraisons WHERE boite = $1",
+        "SELECT id,numColis,dateFin FROM livraisons WHERE boite = $1",
         [boite],
         (error, results) => {
             if (error) {
@@ -60,4 +60,20 @@ app.get("/api/livraisons/:boite", (req, res) => {
         }
     );
 });
+app.put("/api/livraisons/:id", (req, res) => {
+    const { id } = req.params;
+
+    pool.query(
+        "UPDATE livraisons SET datefin = CURRENT_DATE WHERE id=$1",
+        [id],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(results.rows);
+        }
+    );
+});
+
 
