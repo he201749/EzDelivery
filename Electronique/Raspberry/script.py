@@ -16,7 +16,7 @@ tabColis=json.loads(x.text)
 #code=open('/dev/hidraw3', 'rb')
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(26,GPIO.OUT, initial=GPIO.LOW)
-
+GPIO.setup(13,GPIO.OUT, initial=GPIO.HIGH)
 def chargeLivraisons():
     x=requests.get('https://51.91.102.255:8080/api/livraisons/'+numBoite, verify=False)
     tabColis=json.loads(x.text)
@@ -34,8 +34,10 @@ while 1:
             if date.today() == b.date():
                 print('equals')
                 GPIO.output(26,1)
-                sleep(1)
+                GPIO.output(13,0)
+                sleep(6)
                 GPIO.output(26,0)
+                GPIO.output(13,1)
                 requests.put('https://51.91.102.255:8080/api/livraisons/'+str(tabColis[i]["id"]), verify=False)
                 x=requests.get('https://51.91.102.255:8080/api/livraisons/'+numBoite, verify=False)
                 tabColis=json.loads(x.text)
@@ -43,8 +45,10 @@ while 1:
         if num==tabColis[i]["numcolis"] and tabColis[i]["datefin"] is None:
             print('equals1')
             GPIO.output(26,1)
-            sleep(1)
+            GPIO.output(13,0)
+            sleep(6)
             GPIO.output(26,0)
+            GPIO.output(13,1)
             requests.put('https://51.91.102.255:8080/api/livraisons/'+str(tabColis[i]["id"]), verify=False)
             x=requests.get('https://51.91.102.255:8080/api/livraisons/'+numBoite, verify=False)
             tabColis=json.loads(x.text)
