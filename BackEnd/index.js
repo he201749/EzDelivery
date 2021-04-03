@@ -1,4 +1,4 @@
-
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -15,15 +15,19 @@ const key = fs.readFileSync(path.join(__dirname,'server.key'));
 const cert = fs.readFileSync(path.join(__dirname,'server.cert'));
 
 const options = { key, cert };
-
+/*
 https.createServer(options, app).listen(8080, () => {
     console.log('App is running ! Go to https://localhost:8080');
+});*/
+http.createServer(app).listen(8080, () => {
+    console.log('App is running ! Go to http://localhost:8080');
 });
+
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
     user: "admin",
-    host: "192.168.1.22",
+    host: "51.91.102.255",
     database: "ezdelivery",
     password: "QW228fjr78gWxU",
     port: 5432
@@ -76,4 +80,34 @@ app.put("/api/livraisons/:id", (req, res) => {
     );
 });
 
+app.get("/api/livraisons/mail/:mail", (req, res) => {
+    const { mail } = req.params;
 
+    pool.query(
+        "SELECT * FROM livraisons WHERE utilisateur = $1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(results.rows);
+        }
+    );
+});
+
+app.get("/api/acces/:mail", (req, res) => {
+    const { mail } = req.params;
+
+    pool.query(
+        "SELECT * FROM acces WHERE utilisateur = $1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(results.rows);
+        }
+    );
+});

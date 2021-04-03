@@ -1,0 +1,1 @@
+{"ast":null,"code":"export var server = 'https://192.168.1.19:8080';","map":{"version":3,"sources":["C:/Users/damie/Documents/EzDelivery/Mobile/constante.js"],"names":["server"],"mappings":"AAAA,OAAO,IAAMA,MAAM,GAAE,2BAAd","sourcesContent":["export const server= 'https://192.168.1.19:8080';"]},"metadata":{},"sourceType":"module"}
