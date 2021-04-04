@@ -84,7 +84,7 @@ app.get("/api/livraisons/mail/:mail", (req, res) => {
     const { mail } = req.params;
 
     pool.query(
-        "SELECT * FROM livraisons WHERE utilisateur = $1",
+        "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0",
         [mail],
         (error, results) => {
             if (error) {
@@ -111,3 +111,41 @@ app.get("/api/acces/:mail", (req, res) => {
         }
     );
 });
+
+app.delete("/api/livraisons/:id", (req, res) => {
+    const { id } = req.params;
+
+    pool.query(
+        "DELETE FROM livraisons where id=$1",
+        [id],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(true);
+        }
+    );
+});
+
+app.post("/api/livraisons", (req, res) => {
+    let numcolis= req.body.numcolis;
+    let mail= req.body.mail;
+    let boite= Number(req.body.boite);
+    let nom= req.body.nom;
+    let cadeau= Number(req.body.cadeau);
+
+    pool.query(
+        "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,$4,NOW(),$5)",
+        [numcolis,mail,boite,nom,cadeau],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(true);
+        }
+    );
+});
+
+

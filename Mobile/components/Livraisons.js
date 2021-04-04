@@ -1,9 +1,11 @@
  
 import React, {useState} from 'react';  
-import {StyleSheet, Text, View,Button} from 'react-native';
+import { StyleSheet, Text, View,Modal } from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
 import { ListItem} from 'react-native-elements';
+import { Appbar, IconButton, Colors } from 'react-native-paper';
+
  
 class LivraisonsScreen extends React.Component{
     constructor(props){
@@ -11,7 +13,21 @@ class LivraisonsScreen extends React.Component{
         this.state={
             mail:'damiendelestienne4@gmail.com',
             tabLiv:[],
-            tabBoites:[]
+            tabBoites:[],
+            modalVisible: false
+        }
+    }
+    addLivraison = () =>{
+        console.log('add');
+    }
+    setModalVisible = (visible) => {
+        this.setState({ modalVisible: visible });
+      }
+    delLivraison =async (id) =>{
+        let res =await axios.delete(server+'/api/livraisons/'+id);
+        if(res.data){
+            let res2= await axios.get(server+'/api/livraisons/mail/'+this.state.mail);
+            this.setState({tabLiv:res2.data});
         }
     }
     findBoite = (num) =>{
@@ -35,23 +51,35 @@ class LivraisonsScreen extends React.Component{
     componentWillUnmount() {
         this._isMounted = false;
     }
+
     render(){
         return (  
             <View>
-                <View style={{width:"100%",backgroundColor:'#c0dfef',height:'13%'}}>
-                    <View style={{display:'inline',width:'70%'}}>
-                        <Text style={{color:'#226557',marginLeft: '58%',fontSize:'150%'}}>Livraisons</Text>
-                    </View>
-                    <View style={{display:'inline',width:'30%'}}>
-                        <Button style={{width:'10%'}}><Text></Text></Button>
-                    </View>
-                </View>
+                <Appbar.Header  style={{backgroundColor:'#c0dfef'}}>
+                    
+                    <Appbar.Content title="Livraisons"  style={{alignItems:'center'}}/>
+                    <Appbar.Action icon="plus" onPress={this.addLivraison} />
+
+                </Appbar.Header>
+
                 <View style={styles.container}>       
                      {
                             this.state.tabLiv.map((l, i) => (
                             <ListItem key={i} bottomDivider style={{width:"100%"}}>
                                 <ListItem.Content>
-                                    <ListItem.Title>{l.nom}</ListItem.Title>
+                                    <ListItem.Title style={{width:"100%"}}>
+                                        <View style={{display:'inline-block',width:'90%'}}>
+                                            <Text>{l.nom}</Text>
+                                        </View>
+                                        <View style={{display:'inline-block', width:'10%'}}>
+                                            <IconButton
+                                                icon="delete"
+                                                color='#226557'
+                                                size={30}
+                                                onPress={() => this.delLivraison(l.id)}
+                                        />
+                                        </View>
+                                    </ListItem.Title>
                                     <ListItem.Subtitle><Text>Numéro de colis: {l.numcolis}</Text></ListItem.Subtitle>
                                     <ListItem.Subtitle style={{width:"100%"}}>
                                         <View style={{display:'inline-block',width:'50%'}}>
@@ -66,7 +94,7 @@ class LivraisonsScreen extends React.Component{
                             </ListItem>
                             ))
                     }
-                </View>  
+                </View> 
             </View>
             );  
     }
@@ -77,8 +105,9 @@ const styles = StyleSheet.create({
         flex: 1,  
          flexDirection: 'column', 
         alignItems: 'center'  
-    },  
-});  
+    },
+});
+    
 
 export default LivraisonsScreen;
 
