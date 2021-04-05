@@ -84,7 +84,7 @@ app.get("/api/livraisons/mail/:mail", (req, res) => {
     const { mail } = req.params;
 
     pool.query(
-        "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0",
+        "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0 ORDER BY id DESC",
         [mail],
         (error, results) => {
             if (error) {
@@ -146,6 +146,54 @@ app.post("/api/livraisons", (req, res) => {
             return res.send(true);
         }
     );
+});
+
+app.post("/api/gift", (req, res) => {
+    try{
+    let numcolis= req.body.numcolis;
+    let boite= Number(req.body.boite);
+    let mdp=req.body.mdp;
+    let mail= req.body.mail;
+
+    let allboites;
+    let good=false;
+    pool.query(
+        "SELECT * FROM boites",
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            allboites=results.rows;
+            for(let i=0;i<allboites.length;i++){
+                if(boite==allboites[i].id){
+                    if(allboites[i].mdp==mdp){
+                        good=true;
+                    }
+                }
+            }
+            if(good){
+                pool.query(
+                    "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,'cadeau',NOW(),1)",
+                    [numcolis,mail,boite],
+                    (error, results) => {
+                        if (error) {
+                            return res.send(error);
+                        }
+        
+                        return res.send(true);
+                    }
+                );
+            }
+            else{
+                return res.send(false);
+            }
+        }
+    );
+    }
+    catch(error){
+        return res.send(error);
+    }
 });
 
 
