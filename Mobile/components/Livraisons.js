@@ -1,5 +1,5 @@
  
-import React, {useState} from 'react';  
+import React from 'react';  
 import { StyleSheet, Text, View,Modal,TextInput, Button,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
@@ -28,6 +28,12 @@ class LivraisonsScreen extends React.Component{
             tabCheck: []
         }
     }
+    cleanNewLiv = () =>{
+        this.setState({numColis:''});
+        this.setState({descriptionColis:''});
+        this.setState({selectedBoite:''});
+    }
+
     handleNumBoiteGift = (text) =>{
         this.setState({numeroBoiteGift:text})
     }
@@ -38,7 +44,11 @@ class LivraisonsScreen extends React.Component{
         this.setState({numColisGift:text})
     }
     setModalVisible = () => {
-        this.setState({ modalVisible: true });
+        axios.get(server+'/api/acces/'+this.state.mail)
+        .then( res => {
+            this.setState({tabBoites:res.data});
+            this.setState({ modalVisible: true });
+        })
     }
     setModalGiftVisible = () => {
         this.setState({ modalGiftVisible: true });
@@ -82,6 +92,7 @@ class LivraisonsScreen extends React.Component{
                 let res2= await axios.get(server+'/api/livraisons/mail/'+this.state.mail);
                 this.setState({tabLiv:res2.data});
             }
+            this.cleanNewLiv();
             this.setState({modalVisible:false});
             this.setState({txtAlert:''});
             let tab=[];
@@ -102,8 +113,14 @@ class LivraisonsScreen extends React.Component{
                 tab.push(false);
             }
         this.setState({tabCheck:tab});
+        this.cleanNewLiv();
     }
 
+    cleanGiftLiv = () =>{
+        this.setState({numColisGift:''});
+        this.setState({numeroBoiteGift:''});
+        this.setState({mdpBoiteGift:''});
+    }
     sendGiftLiv=async ()=>{
         if(this.state.numColisGift!='' && this.state.numeroBoiteGift!='' && this.state.mdpBoiteGift!=''){
             let newLiv= {
@@ -117,6 +134,7 @@ class LivraisonsScreen extends React.Component{
                 this.setState({modalGiftVisible:false});
                 this.setState({txtAlert:''});
                 this.setState({animationSuccess:true})
+                this.cleanGiftLiv();
             }
             else{
                 this.setState({txtAlert:"Les informations entrées sont incorrectes"});
@@ -129,6 +147,7 @@ class LivraisonsScreen extends React.Component{
     stopGiftLiv=()=>{
         this.setState({modalGiftVisible:false});
         this.setState({txtAlert:''});
+        this.cleanGiftLiv();
     }
     setTabCheck=(num)=>{
         let tab=[];
@@ -138,7 +157,7 @@ class LivraisonsScreen extends React.Component{
         tab[num]=true;
         this.setState({tabCheck:tab});
     }
-    componentDidMount(){
+    componentWillMount(){
         axios.get(server+'/api/livraisons/mail/'+this.state.mail)
         .then( res => {
 
@@ -153,9 +172,6 @@ class LivraisonsScreen extends React.Component{
             }
             this.setState({tabCheck:tab});
         })
-    }
-    componentWillUnmount() {
-        this._isMounted = false;
     }
 
     render(){
@@ -242,14 +258,14 @@ class LivraisonsScreen extends React.Component{
                             <Text style={{fontSize:17,textAlign: "center"}}>Veuillez entrer le numéro de la boite aux lettres</Text>
                             <TextInput style = {styles.input}
 
-                                placeholder = "Numéro de boites"
+                                placeholder = "Numéro de boite"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
                                 keyboardType="numeric"
                                 onChangeText = {this.handleNumBoiteGift}/>
                             <Text style={styles.modalText}>Veuillez entrer le mot de passe de la boite aux lettres</Text>
                             <TextInput style = {styles.input}
-
+                                secureTextEntry={true}
                                 placeholder = "Mot de passe"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"

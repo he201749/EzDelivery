@@ -15,12 +15,12 @@ const key = fs.readFileSync(path.join(__dirname,'server.key'));
 const cert = fs.readFileSync(path.join(__dirname,'server.cert'));
 
 const options = { key, cert };
-/*
+
 https.createServer(options, app).listen(8080, () => {
     console.log('App is running ! Go to https://localhost:8080');
-});*/
-http.createServer(app).listen(8080, () => {
-    console.log('App is running ! Go to http://localhost:8080');
+});
+http.createServer(app).listen(8081, () => {
+    console.log('App is running ! Go to http://localhost:8081');
 });
 
 
@@ -194,6 +194,59 @@ app.post("/api/gift", (req, res) => {
     catch(error){
         return res.send(error);
     }
+});
+
+app.delete("/api/acces/:mail&:boite", (req, res) => {
+    let mail=req.params.mail;
+    let boite=req.params.boite;
+
+    pool.query(
+        "DELETE FROM acces where utilisateur=$1 AND boite=$2",
+        [mail,boite],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(true);
+        }
+    );
+});
+
+app.post("/api/acces", (req, res) => {
+    let num= Number(req.body.num);
+    let mail= req.body.mail;
+    let mdp= req.body.mdp;
+    let nom= req.body.nom;
+
+    pool.query(
+        "select mdp from boites where id=$1",
+        [num],
+        (error, results) => {
+            if (error) {
+                return res.send(false);
+            }
+            if(results.rows.length==0){
+                return res.send(false);
+            }
+            if(mdp!=results.rows[0].mdp){
+                return res.send(false)
+            }
+            else{
+                pool.query(
+                    "Insert into acces(utilisateur,boite,nom) values ($1,$2,$3)",
+                    [mail,num,nom],
+                    (error, results) => {
+                        if (error) {
+                            return res.send(false);
+                        }
+            
+                        return res.send(true);
+                    }
+                );
+            }
+        }
+    );
 });
 
 
