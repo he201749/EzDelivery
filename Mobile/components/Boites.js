@@ -254,7 +254,8 @@ const styles = StyleSheet.create({
         width:200,
         height: 40,
         borderColor: '#226557',
-        borderWidth: 1
+        borderWidth: 1,
+        marginTop: 15
      },
      loginScreenButton:{
          width:120,

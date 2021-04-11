@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
       },
       modalText: {
         marginBottom: 15,
-        marginTop:40,
+        marginTop:30,
         textAlign: "center",
         fontSize:17
       },
@@ -375,7 +375,8 @@ const styles = StyleSheet.create({
         width:200,
         height: 40,
         borderColor: '#226557',
-        borderWidth: 1
+        borderWidth: 1,
+        marginTop: 15
      },
      loginScreenButton:{
          width:120,
@@ -423,27 +424,3 @@ const styles = StyleSheet.create({
 export default LivraisonsScreen;
 
 
-/*
-                            <View style={{flexDirection:'row'}}>
-                                <Text style={{padding: 10}}>Oui</Text>
-                                <CheckBox
-                                        style={{ padding: 10}}
-                                        onClick={()=>{
-                                        this.setState({
-                                            cadeau:true
-                                        })
-                                        }}
-                                        isChecked={this.state.cadeau}
-                                />
-                                <Text style={{padding: 10}}>Non</Text>
-                                <CheckBox
-                                        style={{ padding: 10}}
-                                        onClick={()=>{
-                                        this.setState({
-                                            cadeau:false
-                                        })
-                                        }}
-                                        isChecked={!this.state.cadeau}
-                                />
-                            </View>
-*/

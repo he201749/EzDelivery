@@ -176,8 +176,8 @@ app.post("/api/gift", (req, res) => {
                 pool.query(
                     "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,'cadeau',NOW(),1)",
                     [numcolis,mail,boite],
-                    (error, results) => {
-                        if (error) {
+                    (errors, results) => {
+                        if (errors) {
                             return res.send(error);
                         }
         
@@ -236,8 +236,8 @@ app.post("/api/acces", (req, res) => {
                 pool.query(
                     "Insert into acces(utilisateur,boite,nom) values ($1,$2,$3)",
                     [mail,num,nom],
-                    (error, results) => {
-                        if (error) {
+                    (errors, results) => {
+                        if (errors) {
                             return res.send(false);
                         }
             
@@ -245,6 +245,63 @@ app.post("/api/acces", (req, res) => {
                     }
                 );
             }
+        }
+    );
+});
+
+app.post("/api/utilisateurs", (req, res) => {
+    let mail= req.body.mail;
+    let mdp= req.body.mdp;
+
+    pool.query(
+        "select mdp from utilisateurs where mail=$1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                return res.send(false);
+            }
+            if(results.rows.length==0){
+                return res.send(false);
+            }
+            if(mdp!=results.rows[0].mdp){
+                return res.send(false);
+            }
+            if(mdp==results.rows[0].mdp){
+                return res.send(true);
+            }
+        }
+    );
+});
+
+app.post("/api/newUtilisateurs", (req, res) => {
+    let mail= req.body.mail;
+    let mdp= req.body.mdp;
+    let nom=req.body.nom;
+    let prenom= req.body.prenom;
+
+
+    pool.query(
+        "select mail from utilisateurs ",
+        (error, results) => {
+            if (error) {
+                return res.send(false);
+            }
+            for(let i=0;i<results.rows.length;i++){
+                if(results.rows[i].mail==mail){
+                    return res.send('existant');
+                }
+            }
+            pool.query(
+                "insert into utilisateurs(mail,nom,prenom,mdp) values ($1,$2,$3,$4)",
+                [mail,nom,prenom,mdp],
+                (errors, results)=>{
+                    if (errors) {
+                        return res.send(false);
+                    }
+        
+                    return res.send(true);
+                }
+            )
         }
     );
 });
