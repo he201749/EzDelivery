@@ -1,9 +1,11 @@
 import React from 'react';  
-import { StyleSheet, Text, View,Modal,TextInput, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
 import { ListItem} from 'react-native-elements';
 import { Appbar, IconButton} from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TextInput } from 'react-native-paper';
 
 
 
@@ -11,7 +13,7 @@ class BoitesScreen extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            mail:'damiendelestienne4@gmail.com',
+            mail:'',
             tabBoites:[],
             modalVisible: false,
             txtAlert:'',
@@ -96,10 +98,13 @@ class BoitesScreen extends React.Component{
         this.setState({modalVisible:false});
         this.clean();
     }
-    componentWillMount(){
-        axios.get(server+'/api/acces/'+this.state.mail)
-        .then( res => {
-            this.setState({tabBoites:res.data});
+    componentDidMount(){
+        AsyncStorage.getItem('mail').then((value)=>{
+            this.setState({mail:value});
+            axios.get(server+'/api/acces/'+this.state.mail)
+            .then( res => {
+                this.setState({tabBoites:res.data});
+            })
         })
     }
 
@@ -115,9 +120,9 @@ class BoitesScreen extends React.Component{
                         >
                     <View>
                         <View style={styles.modalView}>
-                            <Text style={{fontSize:17,textAlign: "center"}}>Veuillez entrer le numéro de la boite aux lettres</Text>
+                            <Text style={styles.modalText}>Veuillez entrer le numéro de la boite aux lettres</Text>
                             <TextInput style = {styles.input}
-
+                                mode='outlined'
                                 placeholder = "Numéro de boite"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
@@ -125,6 +130,7 @@ class BoitesScreen extends React.Component{
                                 onChangeText = {this.handleNumBoite}/>
                             <Text style={styles.modalText}>Veuillez entrer le mot de passe de la boite aux lettres</Text>
                             <TextInput style = {styles.input}
+                                mode='outlined'
                                 secureTextEntry={true}
                                 placeholder = "Mot de passe"
                                 placeholderTextColor = "#226557"
@@ -132,7 +138,7 @@ class BoitesScreen extends React.Component{
                                 onChangeText = {this.handlemdpBoite}/>
                             <Text style={styles.modalText}>Veuillez entrer un nom pour votre boite aux lettres</Text>
                             <TextInput style = {styles.input}
-
+                                mode='outlined'
                                 placeholder = "Nom de votre boite"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
@@ -166,7 +172,7 @@ class BoitesScreen extends React.Component{
                         >
                     <View>
                         <View style={styles.modalView}>
-                            <Text style={styles.modalText}>Êtes-vous sûr de vouloir supprimer cette boite aux lettres ?</Text>
+                            <Text style={styles.modalText2}>Êtes-vous sûr de vouloir supprimer cette boite aux lettres ?</Text>
                             <View style={{flexDirection:'row', flexWrap:'wrap',marginTop:15}}>
                                 <TouchableOpacity
                                         style={styles.loginScreenButton}
@@ -246,16 +252,20 @@ const styles = StyleSheet.create({
       },
       modalText: {
         marginBottom: 15,
-        marginTop:40,
-        textAlign: "center",
-        fontSize:17
+        marginTop:10,
+        fontSize:17,
+        width:250
+      },
+      modalText2: {
+        marginBottom: 15,
+        marginTop:10,
+        fontSize:17,
+        textAlign:'center'
       },
       input: {
         width:200,
         height: 40,
-        borderColor: '#226557',
-        borderWidth: 1,
-        marginTop: 15
+        marginBottom:15
      },
      loginScreenButton:{
          width:120,

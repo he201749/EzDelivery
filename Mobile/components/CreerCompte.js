@@ -1,7 +1,8 @@
 import axios from 'axios';
 import * as React from 'react';
-import { StyleSheet, Text, View,Modal,TextInput, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
+import { TextInput } from 'react-native-paper';
 
 export default class CreerCompte extends React.Component{
     constructor(props){
@@ -87,25 +88,28 @@ export default class CreerCompte extends React.Component{
             <View>
                 <Text style={{fontSize:17,textAlign: "left",color:'#226557'}}>Prénom</Text>
                     <TextInput style = {styles.input}
-
+                                    mode='outlined'
                                     placeholder = "Jean"
                                     placeholderTextColor = "#226557"
                                     autoCapitalize = "none"
                                     onChangeText = {this.handlePrenom}/>
                     <Text style={{fontSize:17,textAlign: "left", color:'#226557'}}>Nom</Text>
                     <TextInput style = {styles.input}
+                                    mode='outlined'
                                     placeholder = "Depont"
                                     placeholderTextColor = "#226557"
                                     autoCapitalize = "none"
                                     onChangeText = {this.handleNom}/>
                     <Text style={{fontSize:17,textAlign: "left", color:'#226557'}}>Adresse email</Text>
                     <TextInput style = {styles.input}
+                                    mode='outlined'
                                     placeholder = "exemple@exemple.com"
                                     placeholderTextColor = "#226557"
                                     autoCapitalize = "none"
                                     onChangeText = {this.handleMail}/>
                     <Text style={{fontSize:17,textAlign: "left", color:'#226557'}}>Mot de passe</Text>
                     <TextInput style = {styles.input}
+                                    mode='outlined'
                                     secureTextEntry={true}
                                     placeholder = "········"
                                     placeholderTextColor = "#226557"
@@ -113,6 +117,7 @@ export default class CreerCompte extends React.Component{
                                     onChangeText = {this.handleMdp}/>
                     <Text style={{fontSize:17,textAlign: "left", color:'#226557'}}>Retapez votre mot de passe</Text>
                     <TextInput style = {styles.input}
+                                    mode='outlined'
                                     secureTextEntry={true}
                                     placeholder = "········"
                                     placeholderTextColor = "#226557"
@@ -142,8 +147,6 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop:20,
         marginBottom: 20,
-        borderColor: '#226557',
-        borderWidth: 1,
      },
      loginScreenButton:{
          width:200,

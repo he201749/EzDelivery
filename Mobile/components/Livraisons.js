@@ -1,18 +1,20 @@
  
 import React from 'react';  
-import { StyleSheet, Text, View,Modal,TextInput, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
 import { ListItem} from 'react-native-elements';
 import { Appbar, IconButton} from 'react-native-paper';
 import CheckBox from 'react-native-check-box';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TextInput } from 'react-native-paper';
 
  
 class LivraisonsScreen extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            mail:'damiendelestienne4@gmail.com',
+            mail:'',
             tabLiv:[],
             tabBoites:[],
             modalVisible: false,
@@ -157,20 +159,23 @@ class LivraisonsScreen extends React.Component{
         tab[num]=true;
         this.setState({tabCheck:tab});
     }
-    componentWillMount(){
-        axios.get(server+'/api/livraisons/mail/'+this.state.mail)
-        .then( res => {
-
-            this.setState({tabLiv:res.data});
-        })
-        axios.get(server+'/api/acces/'+this.state.mail)
-        .then( res => {
-            this.setState({tabBoites:res.data});
-            let tab=[];
-            for(let i=0;i<res.data.length;i++){
-                tab.push(false);
-            }
-            this.setState({tabCheck:tab});
+    componentDidMount(){
+        AsyncStorage.getItem('mail').then((value)=>{
+                this.setState({mail:value});
+                axios.get(server+'/api/livraisons/mail/'+this.state.mail)
+                .then( res => {
+                    this.setState({tabLiv:res.data});
+                })
+                axios.get(server+'/api/acces/'+this.state.mail)
+                .then( res => {
+                    this.setState({tabBoites:res.data});
+                    let tab=[];
+                    for(let i=0;i<res.data.length;i++){
+                        tab.push(false);
+                    }
+                    this.setState({tabCheck:tab});
+                })
+            
         })
     }
 
@@ -214,14 +219,14 @@ class LivraisonsScreen extends React.Component{
                   
                             <Text style={styles.modalText}>Veuillez entrer le numéro de colis</Text>
                             <TextInput style = {styles.input}
-
+                                mode='outlined'
                                 placeholder = "Numéro de colis"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
                                 onChangeText = {this.handleNumColis}/>
                             <Text style={styles.modalText}>Veuillez ajouter une description à votre commande</Text>
                             <TextInput style = {styles.input}
-
+                                mode='outlined'
                                 placeholder = "Description"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
@@ -255,9 +260,9 @@ class LivraisonsScreen extends React.Component{
                 >
                     <View>
                         <View style={styles.modalView}>
-                            <Text style={{fontSize:17,textAlign: "center"}}>Veuillez entrer le numéro de la boite aux lettres</Text>
+                            <Text style={styles.modalText}>Veuillez entrer le numéro de la boite aux lettres</Text>
                             <TextInput style = {styles.input}
-
+                                mode='outlined'
                                 placeholder = "Numéro de boite"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
@@ -265,6 +270,7 @@ class LivraisonsScreen extends React.Component{
                                 onChangeText = {this.handleNumBoiteGift}/>
                             <Text style={styles.modalText}>Veuillez entrer le mot de passe de la boite aux lettres</Text>
                             <TextInput style = {styles.input}
+                                mode='outlined'
                                 secureTextEntry={true}
                                 placeholder = "Mot de passe"
                                 placeholderTextColor = "#226557"
@@ -272,7 +278,7 @@ class LivraisonsScreen extends React.Component{
                                 onChangeText = {this.handlemdpBoiteGift}/>
                             <Text style={styles.modalText}>Veuillez entrer le numéro du colis</Text>
                             <TextInput style = {styles.input}
-
+                                mode='outlined'
                                 placeholder = "Numéro de colis"
                                 placeholderTextColor = "#226557"
                                 autoCapitalize = "none"
@@ -367,16 +373,14 @@ const styles = StyleSheet.create({
       },
       modalText: {
         marginBottom: 15,
-        marginTop:30,
-        textAlign: "center",
-        fontSize:17
+        marginTop:15,
+        fontSize:17,
+        width:250
       },
       input: {
         width:200,
         height: 40,
-        borderColor: '#226557',
-        borderWidth: 1,
-        marginTop: 15
+        marginBottom: 10
      },
      loginScreenButton:{
          width:120,

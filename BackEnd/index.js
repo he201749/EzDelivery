@@ -307,3 +307,105 @@ app.post("/api/newUtilisateurs", (req, res) => {
 });
 
 
+
+app.put("/api/utilisateurs/nom/:mail", (req, res) => {
+    let txt= req.body.txt;
+    let mail= req.params.mail;
+
+    pool.query(
+        "update utilisateurs set nom=$1 where mail=$2",
+        [txt,mail],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(true);
+        }
+    );
+});
+
+app.put("/api/utilisateurs/prenom/:mail", (req, res) => {
+    let txt= req.body.txt;
+    let mail= req.params.mail;
+
+    pool.query(
+        "update utilisateurs set prenom=$1 where mail=$2",
+        [txt,mail],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(true);
+        }
+    );
+});
+
+app.put("/api/utilisateurs/mail/:mail", (req, res) => {
+    let newmail= req.body.mail;
+    let mdp=req.body.mdp;
+    let mail= req.params.mail;
+
+    pool.query(
+        "select mdp from utilisateurs where mail = $1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                return res.send(false);
+            }
+            if(results.rows.length==0){
+                return res.send(false);
+            }
+            if(results.rows[0].mdp==mdp){
+                pool.query(
+                    "update utilisateurs set mail=$1 where mail=$2",
+                    [newmail,mail],
+                    (error2, results2) => {
+                        if (error2) {
+                            return res.send(false);
+                        }
+                        return res.send(true);
+                    }
+                )
+            }
+            else{
+                return res.send(false);
+            }
+        }
+    );
+});
+
+app.put("/api/utilisateurs/mdp/:mail", (req, res) => {
+    let newmdp= req.body.newmdp;
+    let mdp=req.body.mdp;
+    let mail= req.params.mail;
+
+    pool.query(
+        "select mdp from utilisateurs where mail = $1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                return res.send(false);
+            }
+            if(results.rows.length==0){
+                return res.send(false);
+            }
+            if(results.rows[0].mdp==mdp){
+                pool.query(
+                    "update utilisateurs set mdp=$1 where mail=$2",
+                    [newmdp,mail],
+                    (error2, results2) => {
+                        if (error2) {
+                            return res.send(false);
+                        }
+                        return res.send(true);
+                    }
+                )
+            }
+            else{
+                return res.send(false);
+            }
+        }
+    );
+});

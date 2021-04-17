@@ -1,10 +1,14 @@
 import React from 'react';  
-import { StyleSheet, Text, View,Modal,TextInput, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
 import { ListItem} from 'react-native-elements';
 import { Appbar, IconButton} from 'react-native-paper';
 import CreerCompte from './CreerCompte';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TextInput } from 'react-native-paper';
+
+
 
 
 export default class Login extends React.Component{
@@ -53,6 +57,7 @@ export default class Login extends React.Component{
             }
             let res= await axios.post(server+'/api/utilisateurs',user);
             if(res.data){
+                await AsyncStorage.setItem('mail', this.state.mail)
                 this.setState({mail:''});
                 this.setState({mdp:''});
                 this.setState({txtAlert:''});
@@ -89,13 +94,14 @@ export default class Login extends React.Component{
                 <View style={styles.body}>
                     <Text style={{fontSize:17,textAlign: "left",marginTop:20,marginLeft:20,color:'#226557'}}>Adresse email:</Text>
                     <TextInput style = {styles.input}
-
+                                    mode='outlined'
                                     placeholder = "exemple@exemple.com"
                                     placeholderTextColor = "#226557"
                                     autoCapitalize = "none"
                                     onChangeText = {this.handleMail}/>
                     <Text style={{fontSize:17,textAlign: "left",marginLeft:20, color:'#226557'}}>Mot de passe:</Text>
                     <TextInput style = {styles.input}
+                                    mode='outlined'
                                     secureTextEntry={true}
                                     placeholder = "········"
                                     placeholderTextColor = "#226557"
@@ -133,8 +139,7 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop:20,
         marginBottom: 20,
-        borderColor: '#226557',
-        borderWidth: 1,
+      
         marginLeft:20
      },
      loginScreenButton:{
@@ -150,7 +155,7 @@ const styles = StyleSheet.create({
       body:{
           marginTop:20,
           backgroundColor:'white',
-          height:400,
+          height:420,
           width:300,
           borderRadius: 20,
 

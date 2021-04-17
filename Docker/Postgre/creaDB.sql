@@ -29,7 +29,7 @@ CREATE TABLE livraisons (
    dateFin  	date,
    cadeau	integer			NOT NULL,	
    CONSTRAINT livraisons_pk PRIMARY KEY (id),
-   CONSTRAINT fk_livraisons_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(mail) ON UPDATE NO ACTION ON DELETE CASCADE,
+   CONSTRAINT fk_livraisons_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(mail) ON UPDATE CASCADE ON DELETE CASCADE,
    CONSTRAINT fk_livraisons_boites FOREIGN KEY(boite) REFERENCES boites(id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 ALTER TABLE livraisons OWNER to "admin";
@@ -40,7 +40,7 @@ CREATE TABLE acces (
    boite  	integer       		NOT NULL,            
    nom  	varchar(1000) 		NOT NULL,
    CONSTRAINT acces_pk PRIMARY KEY (utilisateur,boite),
-   CONSTRAINT fk_acces_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(mail) ON UPDATE NO ACTION ON DELETE CASCADE,
+   CONSTRAINT fk_acces_utilisateurs FOREIGN KEY(utilisateur) REFERENCES utilisateurs(mail) ON UPDATE CASCADE ON DELETE CASCADE,
    CONSTRAINT fk_acces_boites FOREIGN KEY(boite) REFERENCES boites(id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 ALTER TABLE boites OWNER to "admin";
