@@ -38,7 +38,8 @@ export default class Login extends React.Component{
     }
     setModalVisible=()=>{
         this.setState({modalVisible:true});
-        this.clean();
+        this.setState({txtAlert:""});
+        this.setState({txtSucces:""});
     }
     handleMail= (text) => {
         this.setState({mail:text});
