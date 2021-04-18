@@ -61,9 +61,6 @@ class ProfileScreen extends React.Component{
     handleMailVisible=()=>{
         this.setState({modaleVisibleMail:true})
     }
-    deconnect = () =>{
-
-    }
     handleMailChange=(text)=>{
         this.setState({newMail:text})
     }
@@ -329,7 +326,7 @@ class ProfileScreen extends React.Component{
                     </TouchableOpacity>
                     <TouchableOpacity
                                         style={styles.loginScreenButton2}
-                                        onPress={this.deconnect}
+                                        onPress={this.deco}
                                         underlayColor='#fff'>
                                         <Text style={styles.loginText2}>Déconnexion</Text>
                     </TouchableOpacity>

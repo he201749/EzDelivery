@@ -12,13 +12,19 @@ export default class Index extends React.Component{
         }
     }
 
+
     goodConnection = () =>{
         this.setState({loaded:true});
     }
-    
+
+    deconnect = () =>{
+        this.setState({loaded:false});
+    }
+
+
     render(){
         if(this.state.loaded){
-            return(<Home />)
+            return(<Home deconnect={this.deconnect}/>)
         }else{
             return(<Login goodConnection={this.goodConnection}/>)
         }

@@ -50,7 +50,6 @@ const TabNavigator = createMaterialBottomTabNavigator(
               style={[{ color: tintColor }]} size={25} name={'user'} />
           </View>
         ),
-       
       },
     },
 
@@ -65,6 +64,7 @@ const TabNavigator = createMaterialBottomTabNavigator(
     barStyle: { backgroundColor: '#c0dfef' },
   }
 );
+
 
 export default createAppContainer(TabNavigator);
 

@@ -21,7 +21,9 @@ export default class Login extends React.Component{
             txtAlert:'',
             modalVisible: false,
             modalSucces: false,
-            txtSucces:''
+            txtSucces:'',
+            forgetModal:false,
+            mailForget:''
         }
     }
     openSucces = () =>{
@@ -48,6 +50,33 @@ export default class Login extends React.Component{
 
     handleMdp= (text) => {
         this.setState({mdp:text});
+    }
+    openForgetModal=()=>{
+        this.setState({forgetModal:true});
+    }
+    handleMailForget=(text)=>{
+        this.setState({mailForget:text})
+    }
+    sendPwdForget=async ()=>{
+        if(this.state.mailForget!=''){
+            let res= await axios.post(server+'/api/resetPwd/'+this.state.mailForget);
+            if(res.data){
+                this.setState({mailForget:''});
+                this.setState({txtAlert:''});
+                this.setState({forgetModal:false});
+            }
+            else{
+                this.setState({txtAlert:"Une erreur s'est produite"});
+            }
+        }
+        else{
+            this.setState({txtAlert:'Veuillez indiquer votre adresse mail'});
+        }
+    }
+    closePwdForget=()=>{
+        this.setState({mailForget:''});
+        this.setState({txtAlert:''});
+        this.setState({forgetModal:false});
     }
     connect= async() =>{
         if(this.state.mail!='' && this.state.mdp!=''){
@@ -89,6 +118,44 @@ export default class Login extends React.Component{
                         </View>
                     </ScrollView>
                 </Modal>
+                <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={this.state.forgetModal}
+                            hasBackdrop={true}
+                            backdropOpacity={10}
+                        >
+                    <View>
+                        <View style={styles.modalView2}>
+                            <Text style={styles.modalText2}>Un email va vous être envoyé.</Text>
+                            <Text style={styles.modalText2}>Veuillez entrer votre addresse mail:</Text>
+                            <TextInput style = {styles.input2}
+                                    mode='outlined'
+                                    placeholder = "exemple@exemple.com"
+                                    placeholderTextColor = "#226557"
+                                    autoCapitalize = "none"
+                                    onChangeText = {this.handleMailForget}/>
+                                    <Text style={{color:'red',marginTop:5,textAlign:'center'}}>{this.state.txtAlert}</Text>
+                                    <View style={{flexDirection:'row', flexWrap:'wrap',marginTop:15}}>
+                                        <TouchableOpacity
+                                                style={styles.loginScreenButton2}
+                                                onPress={this.sendPwdForget}
+                                                underlayColor='#fff'>
+                                                <Text style={styles.loginText}>Envoyer</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                                style={styles.loginScreenButton2}
+                                                onPress={this.closePwdForget}
+                                                underlayColor='#fff'>
+                                                <Text style={styles.loginText}>Annuler</Text>
+                                        </TouchableOpacity>
+            
+                
+                                    </View>
+
+                        </View>
+                    </View>
+                </Modal>
                 <Text style={{marginTop:100,color:'#226557',fontSize:40}}>EzDelivery</Text>
                 <Text style={{marginTop:50,color:'green',fontSize:18}}>{this.state.txtSucces}</Text>
                 <View style={styles.body}>
@@ -108,6 +175,10 @@ export default class Login extends React.Component{
                                     autoCapitalize = "none"
                                     onChangeText = {this.handleMdp}/>
                     <Text style={{color:'red',marginTop:5,textAlign:'center'}}>{this.state.txtAlert}</Text>
+                    <Text style={{color: 'blue',marginLeft:20}}
+                        onPress={this.openForgetModal}>
+                                             Mot de passe oublié ?
+                    </Text>
                     <TouchableOpacity
                                         style={styles.loginScreenButton}
                                         onPress={this.connect}
@@ -193,5 +264,40 @@ const styles = StyleSheet.create({
         shadowRadius: 150,
         elevation: 5,
       },
-
+      modalText2: {
+        marginBottom: 15,
+        marginTop:10,
+        fontSize:17,
+        width:250
+      },
+      input2: {
+        width:250,
+        height: 40,
+        marginBottom:15
+     },
+     loginScreenButton2:{
+        width:120,
+        height:50,
+       backgroundColor:'#226557',
+       borderRadius:10,
+       borderWidth: 1,
+       borderColor: '#fff'
+     },
+     modalView2: {
+        width:330,
+        margin: 200,
+        marginLeft:25,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2
+        },
+        shadowOpacity: 0.35,
+        shadowRadius: 150,
+        elevation: 5,
+      },
 });

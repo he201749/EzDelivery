@@ -5,6 +5,7 @@ const path = require('path');
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const nodemailer = require("nodemailer");
 
 const app = express();
 
@@ -32,6 +33,80 @@ const pool = new Pool({
     password: "QW228fjr78gWxU",
     port: 5432
 });
+
+var transporter = nodemailer.createTransport({              
+    host: 'smtp.gmail.com',
+    auth: {
+        user: 'ezdelivery.mail@gmail.com',
+        pass: 'R4z3UQwz9X9i'
+    },
+});
+
+var mailOptions = {                         
+    from: 'EzDelivery.mail@gmail.com',
+    to: "",
+    subject: 'EzDelivery : Réinitialisation de mot de passe',
+    text: ''
+};
+
+function CreateMail(mail, password) {
+    mailOptions.to = mail;
+    mailOptions.text = "Voici votre nouveau mot de passe : \n\n" + password+ "\n\n Nous espérons que vous le changerez dès que possible";
+    transporter.sendMail(mailOptions, function(error, info){  
+            if (error) {
+                return false;
+            }
+    })
+}
+function strRandom(o) {
+    var a = 10,
+        b = 'abcdefghijklmnopqrstuvwxyz',
+        c = '',
+        d = 0,
+        e = ''+b;
+    if (o) {
+      if (o.startsWithLowerCase) {
+        c = b[Math.floor(Math.random() * b.length)];
+        d = 1;
+      }
+      if (o.length) {
+        a = o.length;
+      }
+      if (o.includeUpperCase) {
+        e += b.toUpperCase();
+      }
+      if (o.includeNumbers) {
+        e += '1234567890';
+      }
+    }
+    for (; d < a; d++) {
+      c += e[Math.floor(Math.random() * e.length)];
+    }
+    return c;
+  }
+  
+app.post('/api/resetPwd/:mail', (req,res)=>{
+    let mail= req.params.mail;
+    let password= strRandom({
+        includeUpperCase: true,
+        includeNumbers: true,
+        length: 10,
+        startsWithLowerCase: true
+    });
+    
+    pool.query(
+        "update utilisateurs set mdp=$1 where mail=$2",
+        [password,mail],
+        (error, results) => {
+            if (error) {
+                return res.send(false);
+            }
+            CreateMail(mail, password,res)
+            return res.send(true);
+            
+        }
+    );
+})
 
 app.get("/api/utilisateurs/:mail", (req, res) => {
     const { mail } = req.params;
