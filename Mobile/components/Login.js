@@ -52,9 +52,11 @@ export default class Login extends React.Component{
         this.setState({mdp:text});
     }
     openForgetModal=()=>{
+        this.setState({txtAlert:''});
         this.setState({forgetModal:true});
     }
     handleMailForget=(text)=>{
+        
         this.setState({mailForget:text})
     }
     sendPwdForget=async ()=>{
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
       body:{
           marginTop:20,
           backgroundColor:'white',
-          height:420,
+          height:440,
           width:300,
           borderRadius: 20,
 

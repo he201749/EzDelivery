@@ -292,7 +292,7 @@ class ProfileScreen extends React.Component{
                     <Text style={{color:"#226557", fontSize:20,marginLeft:15,marginTop:20}}>Nom:</Text>
                     <TextInput style={styles.txtField}
                         mode='outlined'
-                        editable= 'true'
+                        editable= {true}
                         placeholder = {this.state.nom}
                         placeholderTextColor = "#226557"
                         onChangeText = {this.handleNom}
@@ -300,7 +300,7 @@ class ProfileScreen extends React.Component{
                     <Text style={{color:"#226557", fontSize:20,marginLeft:15,marginTop:20}}>Prénom:</Text>
                     <TextInput style={styles.txtField}
                         mode='outlined'
-                        editable= 'true'
+                        editable= {true}
                         placeholder = {this.state.prenom}
                         placeholderTextColor = "#226557"
                         onChangeText = {this.handlePrenom}
@@ -308,7 +308,7 @@ class ProfileScreen extends React.Component{
                     <Text style={{color:"#226557", fontSize:20,marginLeft:15,marginTop:20}}>Mail:</Text>
                     <TextInput style={styles.txtField}
                         mode='outlined'
-                        editable= 'false'
+                        editable= {false}
                         placeholder = {this.state.mail}
                         placeholderTextColor = "#226557"
                     />

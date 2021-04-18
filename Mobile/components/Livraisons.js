@@ -200,7 +200,7 @@ class LivraisonsScreen extends React.Component{
                             <Text style={{fontSize:17,textAlign: "center"}}>Veuillez choisir la boite aux lettres</Text>
                             {
                             this.state.tabBoites.map((l, i) => (
-                                <View style={{flexDirection:'row'}}>
+                                <View style={{flexDirection:'row'}} key={i}>
                                 <Text style={{marginRight: 100,marginTop:20,width:90}}>{this.findBoite(l.boite)}</Text>
                                 <CheckBox
                                         style={{ marginRight: 10,marginTop:15}}
@@ -326,7 +326,7 @@ class LivraisonsScreen extends React.Component{
                      {
                             this.state.tabLiv.map((l, i) => (
                             <ListItem key={i} bottomDivider style={{width:"100%"}}>
-                                <ListItem.Content>
+                                <ListItem.Content >
                                     <ListItem.Title style={{fontSize:25}}>{l.nom}</ListItem.Title>
                                     <ListItem.Subtitle style={{marginTop:10}}><Text>Numéro de colis: {l.numcolis}</Text></ListItem.Subtitle>
                                     <ListItem.Subtitle><Text>Passée le: {new Date(l.datedebut).toLocaleDateString()}</Text></ListItem.Subtitle>
