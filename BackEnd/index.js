@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const app = express();
 
@@ -173,7 +175,7 @@ app.put("/api/livraisons/:id", (req, res) => {
     );
 });
 
-app.get("/api/livraisons/mail", verifyToken, (req, res) => {
+app.get("/api/livraisonsmail", verifyToken, (req, res) => {
     jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
         if(err){
             res.send(false)
@@ -390,14 +392,16 @@ app.post("/api/utilisateurs", (req, res) => {
             if(results.rows.length==0){
                 return res.send(false);
             }
-            if(mdp!=results.rows[0].mdp){
-                return res.send(false);
-            }
-            if(mdp==results.rows[0].mdp){
-                jwt.sign({mail},'b7j3x3MZR', (err,token)=>{
-                    res.send(token);
-                })
-            }
+            bcrypt.compare(mdp, results.rows[0].mdp, function(err, result) {
+                if(!result){
+                    return res.send(false);
+                }
+                if(result){
+                    jwt.sign({mail},'b7j3x3MZR', (err1,token)=>{
+                        res.send(token);
+                    })
+                }
+            });
         }
     );
 });
@@ -407,8 +411,6 @@ app.post("/api/newUtilisateurs", (req, res) => {
     let mdp= req.body.mdp;
     let nom=req.body.nom;
     let prenom= req.body.prenom;
-
-
     pool.query(
         "select mail from utilisateurs ",
         (error, results) => {
@@ -420,17 +422,22 @@ app.post("/api/newUtilisateurs", (req, res) => {
                     return res.send('existant');
                 }
             }
-            pool.query(
-                "insert into utilisateurs(mail,nom,prenom,mdp) values ($1,$2,$3,$4)",
-                [mail,nom,prenom,mdp],
-                (errors, results)=>{
-                    if (errors) {
-                        return res.send(false);
-                    }
-        
-                    return res.send(true);
+            bcrypt.hash(mdp, saltRounds, function(err, hash) {
+                if(err){
+                    return res.send(false)
                 }
-            )
+                pool.query(
+                    "insert into utilisateurs(mail,nom,prenom,mdp) values ($1,$2,$3,$4)",
+                    [mail,nom,prenom,hash],
+                    (errors, results)=>{
+                        if (errors) {
+                            return res.send(false);
+                        }
+            
+                        return res.send(true);
+                    }
+                )
+            });
         }
     );
 });
@@ -489,37 +496,19 @@ app.put("/api/utilisateurs/mail", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let newmail= req.body.mail;
-            let mdp=req.body.mdp;
-
+            let newmail= req.body.newmail;
             pool.query(
-                "select mdp from utilisateurs where mail = $1",
-                [mail],
-                (error, results) => {
-                    if (error) {
+                "update utilisateurs set mail=$1 where mail=$2",
+                [newmail,mail],
+                (error2, results2) => {
+                    if (error2) {
                         return res.send(false);
                     }
-                    if(results.rows.length==0){
-                        return res.send(false);
+                        return res.send(true);
                     }
-                    if(results.rows[0].mdp==mdp){
-                        pool.query(
-                            "update utilisateurs set mail=$1 where mail=$2",
-                            [newmail,mail],
-                            (error2, results2) => {
-                                if (error2) {
-                                    return res.send(false);
-                                }
-                                return res.send(true);
-                            }
-                        )
-                    }
-                    else{
-                        return res.send(false);
-                    }
-                }
-            );
+            )
         }
+        
     })
 });
 
@@ -542,21 +531,48 @@ app.put("/api/utilisateurs/mdp",verifyToken, (req, res) => {
                     if(results.rows.length==0){
                         return res.send(false);
                     }
-                    if(results.rows[0].mdp==mdp){
-                        pool.query(
-                            "update utilisateurs set mdp=$1 where mail=$2",
-                            [newmdp,mail],
-                            (error2, results2) => {
-                                if (error2) {
-                                    return res.send(false);
+                    bcrypt.compare(mdp, results.rows[0].mdp, function(err, result) {
+                        if(!result){
+                            return res.send(false);
+                        }
+                        if(result){
+                            bcrypt.hash(newmdp, saltRounds, function(err3, hash) {
+                                if(err3){
+                                    return res.send(false)
                                 }
-                                return res.send(true);
-                            }
-                        )
-                    }
-                    else{
+                                pool.query(
+                                    "update utilisateurs set mdp=$1 where mail=$2",
+                                    [hash,mail],
+                                    (error2, results2) => {
+                                        if (error2) {
+                                            return res.send(false);
+                                        }
+                                        return res.send(true);
+                                    }
+                                )
+                            });
+                        }
+                    });
+                }
+            );
+        }
+    })
+});
+
+app.delete("/api/utilisateurs",verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            pool.query(
+                "delete from utilisateurs where mail = $1",
+                [mail],
+                (error, results) => {
+                    if (error) {
                         return res.send(false);
                     }
+                    return res.send(true);
                 }
             );
         }

@@ -31,6 +31,7 @@ class LivraisonsScreen extends React.Component{
             tabCheck: []
         }
     }
+
     cleanNewLiv = () =>{
         this.setState({numColis:''});
         this.setState({descriptionColis:''});
@@ -50,7 +51,9 @@ class LivraisonsScreen extends React.Component{
         axios.get(server+'/api/acces',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
         .then( res => {
             this.setState({tabBoites:res.data});
-            this.setState({ modalVisible: true });
+            if(res.data.length>0){
+                this.setState({ modalVisible: true });
+            }
         })
     }
     setModalGiftVisible = () => {
@@ -59,7 +62,7 @@ class LivraisonsScreen extends React.Component{
     delLivraison =async (id) =>{
         let res =await axios.delete(server+'/api/livraisons/'+id,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
         if(res.data){
-            let res2= await axios.get(server+'/api/livraisons/mail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+            let res2= await axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             this.setState({tabLiv:res2.data});
         }
     }
@@ -91,7 +94,7 @@ class LivraisonsScreen extends React.Component{
             };
             let res= await axios.post(server+'/api/livraisons',newLiv,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
-                let res2= await axios.get(server+'/api/livraisons/mail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+                let res2= await axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
                 this.setState({tabLiv:res2.data});
             }
             this.cleanNewLiv();
@@ -163,7 +166,7 @@ class LivraisonsScreen extends React.Component{
             this.setState({mail:value});
             AsyncStorage.getItem('token').then((value2)=>{
                 this.setState({token:value2});
-                axios.get(server+'/api/livraisons/mail',{ headers: {'Authorization': `Bearer ${value2}` }})
+                axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${value2}` }})
                 .then( res => {
                     this.setState({tabLiv:res.data});
                 })

@@ -21,6 +21,17 @@ export default class Index extends React.Component{
         this.setState({loaded:false});
     }
 
+    componentDidMount(){
+        AsyncStorage.getItem('token').then((value)=>{
+            if(value==='deco'){
+                this.setState({loaded:false});
+            }
+            else{
+                this.setState({loaded:true});
+            }
+        })
+    }
+
 
     render(){
         if(this.state.loaded){

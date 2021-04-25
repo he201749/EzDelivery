@@ -7,6 +7,7 @@ import { Appbar, IconButton} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';
 
+
 class ProfileScreen extends React.Component{
     constructor(props){
         super(props);
@@ -24,7 +25,8 @@ class ProfileScreen extends React.Component{
             ancienmdp:'',
             nouveaumdp:'',
             nouveaumdp2:'',
-            mdpsuccesmodal:false
+            mdpsuccesmodal:false,
+            delModal: false
         }
     }
     cleanMdp=()=>{
@@ -65,20 +67,19 @@ class ProfileScreen extends React.Component{
     handleMailChange=(text)=>{
         this.setState({newMail:text})
     }
-    handleMdp=(text)=>{
-        this.setState({mdp:text})
-    }
 
     changeMail=async()=>{
         if(this.state.newMail!='' && this.state.mail!=''){
             let usr={
-                mdp: this.state.mdp
+                newmail: this.state.newMail
             }
             let res=await axios.put(server+'/api/utilisateurs/mail',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
                 this.cleanMail();
                 this.setState({modaleVisibleMail:false});
                 this.setState({recoModal:true});
+                let txtasync='deco'
+                await AsyncStorage.setItem('token', txtasync);
             }
             else{
                 this.setState({txtAlert:'Données incorrectes'})
@@ -92,8 +93,10 @@ class ProfileScreen extends React.Component{
         this.setState({modalMdp:true})
     }
 
-    closeReco=()=>{
+    closeReco= async()=>{
         this.setState({recoModal:false});
+        let txtasync='deco'
+        await AsyncStorage.setItem('token', txtasync);
     }
 
     handleOldMdp=(text)=>{
@@ -134,8 +137,24 @@ class ProfileScreen extends React.Component{
             this.setState({txtAlert:'Veuillez remplir tous les champs'})
         }
     }
+    deco =async()=>{
+        let txtasync='deco'
+        await AsyncStorage.setItem('token', txtasync);
+    }
     closemdpsucces=()=>{
         this.setState({mdpsuccesmodal:false})
+    }
+    openDelModal=()=>{
+        this.setState({delModal:true});
+    }
+    closeDelModal=()=>{
+        this.setState({delModal:false});
+    }
+    deleteAccount =async ()=>{
+        await axios.delete(server+'/api/utilisateurs',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
+        let txtasync='deco';
+        await AsyncStorage.setItem('token', txtasync);
+        this.setState({delModal:false});
     }
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
@@ -170,14 +189,6 @@ class ProfileScreen extends React.Component{
                                         placeholderTextColor = "#226557"
                                         autoCapitalize = "none"
                                         onChangeText = {this.handleMailChange}/>
-                                    <Text style={styles.modalText}>Entrez votre mot de passe</Text>
-                                    <TextInput style = {styles.input}
-                                        mode='outlined'
-                                        secureTextEntry={true}
-                                        placeholder = "Mot de passe"
-                                        placeholderTextColor = "#226557"
-                                        autoCapitalize = "none"
-                                        onChangeText = {this.handleMdp}/>
                                     <Text style={{color:'red',marginTop:10}}>{this.state.txtAlert}</Text>
                                     <View style={{flexDirection:'row', flexWrap:'wrap',marginTop:15}}>
                                         <TouchableOpacity
@@ -217,6 +228,35 @@ class ProfileScreen extends React.Component{
                             </View>
                     </View>
                     </Modal>  
+                    <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={this.state.delModal}
+                            hasBackdrop={true}
+                            backdropOpacity={10}
+                        >
+                            <View>
+                                <View style={styles.modalView}>
+                                    <Text style={styles.modalText}>Êtes-vous sur ? Toutes vos données seront supprimées</Text>
+                                    <View style={{flexDirection:'row', flexWrap:'wrap',marginTop:15}}>
+                                        <TouchableOpacity
+                                                style={styles.loginScreenButton}
+                                                onPress={this.deleteAccount}
+                                                underlayColor='#fff'>
+                                                <Text style={styles.loginText}>Confirmer</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                                style={styles.loginScreenButton}
+                                                onPress={this.closeDelModal}
+                                                underlayColor='#fff'>
+                                                <Text style={styles.loginText}>Annuler</Text>
+                                        </TouchableOpacity>
+            
+                
+                                    </View>
+                            </View>
+                    </View>
+                    </Modal>   
                     <Modal
                             animationType="slide"
                             transparent={true}
@@ -333,6 +373,12 @@ class ProfileScreen extends React.Component{
                                         underlayColor='#fff'>
                                         <Text style={styles.loginText2}>Déconnexion</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                                        style={styles.loginScreenButton2}
+                                        onPress={this.openDelModal}
+                                        underlayColor='#fff'>
+                                        <Text style={styles.loginText2}>Supprimer mon compte</Text>
+                    </TouchableOpacity>
                 </View>  
             );  
     }
@@ -347,16 +393,16 @@ const styles = StyleSheet.create({
     },  
     loginScreenButton2:{
         width:250,
-        height:60,
+        height:50,
        backgroundColor:'#226557',
        borderRadius:10,
        borderWidth: 1,
        borderColor: '#fff',
-       marginTop:30,
+       marginTop:20,
        alignSelf:'center'
      },
      loginText2:{
-         fontSize:20,
+         fontSize:16,
          marginTop:15,
          color:'#fff',
          textAlign:'center',
