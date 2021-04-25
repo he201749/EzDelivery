@@ -6,6 +6,7 @@ import { ListItem} from 'react-native-elements';
 import { Appbar, IconButton} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';
+import {verifyMail,verifyPassword} from '../function';
 
 
 class ProfileScreen extends React.Component{
@@ -70,19 +71,24 @@ class ProfileScreen extends React.Component{
 
     changeMail=async()=>{
         if(this.state.newMail!='' && this.state.mail!=''){
-            let usr={
-                newmail: this.state.newMail
-            }
-            let res=await axios.put(server+'/api/utilisateurs/mail',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
-            if(res.data){
-                this.cleanMail();
-                this.setState({modaleVisibleMail:false});
-                this.setState({recoModal:true});
-                let txtasync='deco'
-                await AsyncStorage.setItem('token', txtasync);
+            if(verifyMail(this.state.newMail)){
+                let usr={
+                    newmail: this.state.newMail
+                }
+                let res=await axios.put(server+'/api/utilisateurs/mail',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+                if(res.data){
+                    this.cleanMail();
+                    this.setState({modaleVisibleMail:false});
+                    this.setState({recoModal:true});
+                    let txtasync='deco'
+                    await AsyncStorage.setItem('token', txtasync);
+                }
+                else{
+                    this.setState({txtAlert:'Données incorrectes'})
+                }
             }
             else{
-                this.setState({txtAlert:'Données incorrectes'})
+                this.setState({txtAlert:'Veuillez entrer une adresse mail valide'})
             }
         }
         else{
@@ -114,23 +120,28 @@ class ProfileScreen extends React.Component{
     }
     changeMdp=async()=>{
         if(this.state.ancienmdp!='' && this.state.nouveaumdp!='' && this.state.nouveaumdp2!=''){
-            if(this.state.nouveaumdp==this.state.nouveaumdp2){
-                let usr={
-                    newmdp:this.state.nouveaumdp,
-                    mdp: this.state.ancienmdp
-                }
-                let res=await axios.put(server+'/api/utilisateurs/mdp',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
-                if(res.data){
-                    this.cleanMdp();
-                    this.setState({modalMdp:false});
-                    this.setState({mdpsuccesmodal:true})
+            if(verifyPassword(this.state.nouveaumdp)){
+                if(this.state.nouveaumdp==this.state.nouveaumdp2){
+                    let usr={
+                        newmdp:this.state.nouveaumdp,
+                        mdp: this.state.ancienmdp
+                    }
+                    let res=await axios.put(server+'/api/utilisateurs/mdp',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+                    if(res.data){
+                        this.cleanMdp();
+                        this.setState({modalMdp:false});
+                        this.setState({mdpsuccesmodal:true})
+                    }
+                    else{
+                        this.setState({txtAlert:'Ancien mot de passe incorrect'})
+                    }
                 }
                 else{
-                    this.setState({txtAlert:'Ancien mot de passe incorrect'})
+                    this.setState({txtAlert:'Les deux mots de passes ne sont pas identiques'})
                 }
             }
             else{
-                this.setState({txtAlert:'Les deux mots de passes ne sont pas identiques'})
+                this.setState({txtAlert:'Le mot de passe nécessite au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial'})
             }
         }
         else{

@@ -7,7 +7,7 @@ import { Appbar, IconButton} from 'react-native-paper';
 import CreerCompte from './CreerCompte';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';
-
+import {verifyMail} from '../function';
 
 
 
@@ -62,14 +62,19 @@ export default class Login extends React.Component{
     }
     sendPwdForget=async ()=>{
         if(this.state.mailForget!=''){
-            let res= await axios.post(server+'/api/resetPwd/'+this.state.mailForget);
-            if(res.data){
-                this.setState({mailForget:''});
-                this.setState({txtAlert:''});
-                this.setState({forgetModal:false});
+            if(verifyMail(this.state.mailForget)){
+                let res= await axios.post(server+'/api/resetPwd/'+this.state.mailForget);
+                if(res.data){
+                    this.setState({mailForget:''});
+                    this.setState({txtAlert:''});
+                    this.setState({forgetModal:false});
+                }
+                else{
+                    this.setState({txtAlert:"Une erreur s'est produite"});
+                }
             }
             else{
-                this.setState({txtAlert:"Une erreur s'est produite"});
+                this.setState({txtAlert:'Veuillez entrer une adresse mail valide'});
             }
         }
         else{

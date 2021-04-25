@@ -88,27 +88,41 @@ function strRandom(o) {
     return c;
 }
   
+function spl(text){
+    let txt=text.split(' ');
+    for(let i=0;i<txt.length;i++){
+        if(txt[i].toLowerCase()=='select' || txt[i].toLowerCase()=='from' || txt[i].toLowerCase()=='where' || txt[i].toLowerCase()=='insert' || txt[i].toLowerCase()=='into' || 
+        txt[i].toLowerCase()=='alter' || txt[i].toLowerCase()=='table' || txt[i].toLowerCase()=='delete' || txt[i].toLowerCase()=='update' || txt[i].toLowerCase()=='or' || 
+        txt[i].toLowerCase()=='and' || txt[i].toLowerCase()=='drop'){
+            return(' ');
+        }
+    }
+    return text;
+}
 app.post('/api/resetPwd/:mail', (req,res)=>{
-    let mail= req.params.mail;
+    let mail= spl(req.params.mail);
     let password= strRandom({
         includeUpperCase: true,
         includeNumbers: true,
         length: 10,
         startsWithLowerCase: true
     });
-    
-    pool.query(
-        "update utilisateurs set mdp=$1 where mail=$2",
-        [password,mail],
-        (error, results) => {
-            if (error) {
-                return res.send(false);
-            }
-            CreateMail(mail, password,res)
-            return res.send(true);
-            
+    bcrypt.hash(password, saltRounds, function(err, hash) {
+        if(err){
+            return res.send(false)
         }
-    );
+        pool.query(
+            "update utilisateurs set mdp=$1 where mail=$2",
+            [hash,mail],
+            (error, results) => {
+                if (error) {
+                    return res.send(false);
+                }
+                CreateMail(mail, password,res)
+                return res.send(true);              
+            }
+        );
+    });
 })
 
 function verifyToken(req,res,next){
@@ -245,9 +259,9 @@ app.post("/api/livraisons", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let numcolis= req.body.numcolis;
+            let numcolis= spl(req.body.numcolis);
             let boite= Number(req.body.boite);
-            let nom= req.body.nom;
+            let nom= spl(req.body.nom);
             let cadeau= Number(req.body.cadeau);
 
             pool.query(
@@ -271,9 +285,9 @@ app.post("/api/gift", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let numcolis= req.body.numcolis;
+            let numcolis= spl(req.body.numcolis);
             let boite= Number(req.body.boite);
-            let mdp=req.body.mdp;
+            let mdp=spl(req.body.mdp);
             let allboites;
             let good=false;
             pool.query(
@@ -319,8 +333,7 @@ app.delete("/api/acces/:boite", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let boite=req.params.boite;
-
+            let boite=spl(req.params.boite);
             pool.query(
                 "DELETE FROM acces where utilisateur=$1 AND boite=$2",
                 [mail,boite],
@@ -343,8 +356,9 @@ app.post("/api/acces",verifyToken, (req, res) => {
         }else{
             let mail = authdata.mail;
             let num= Number(req.body.num);
-            let mdp= req.body.mdp;
-            let nom= req.body.nom;
+            let mdp= spl(req.body.mdp);
+            let nom= spl(req.body.nom);
+
 
             pool.query(
                 "select mdp from boites where id=$1",
@@ -379,8 +393,9 @@ app.post("/api/acces",verifyToken, (req, res) => {
 });
 
 app.post("/api/utilisateurs", (req, res) => {
-    let mail= req.body.mail;
-    let mdp= req.body.mdp;
+    let mail= spl(req.body.mail);
+    let mdp= spl(req.body.mdp);
+
 
     pool.query(
         "select mdp from utilisateurs where mail=$1",
@@ -407,10 +422,14 @@ app.post("/api/utilisateurs", (req, res) => {
 });
 
 app.post("/api/newUtilisateurs", (req, res) => {
-    let mail= req.body.mail;
-    let mdp= req.body.mdp;
-    let nom=req.body.nom;
-    let prenom= req.body.prenom;
+    let mail= spl(req.body.mail);
+
+    let mdp= spl(req.body.mdp);
+
+    let nom=spl(req.body.nom);
+
+    let prenom= spl(req.body.prenom);
+
     pool.query(
         "select mail from utilisateurs ",
         (error, results) => {
@@ -450,8 +469,7 @@ app.put("/api/utilisateurs/nom", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let txt= req.body.txt;
-
+            let txt= spl(req.body.txt);
             pool.query(
                 "update utilisateurs set nom=$1 where mail=$2",
                 [txt,mail],
@@ -473,7 +491,7 @@ app.put("/api/utilisateurs/prenom", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let txt= req.body.txt;
+            let txt= spl(req.body.txt);
 
             pool.query(
                 "update utilisateurs set prenom=$1 where mail=$2",
@@ -496,7 +514,8 @@ app.put("/api/utilisateurs/mail", verifyToken,(req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let newmail= req.body.newmail;
+            let newmail= spl(req.body.newmail);
+
             pool.query(
                 "update utilisateurs set mail=$1 where mail=$2",
                 [newmail,mail],
@@ -518,8 +537,8 @@ app.put("/api/utilisateurs/mdp",verifyToken, (req, res) => {
             res.send(false)
         }else{
             let mail = authdata.mail;
-            let newmdp= req.body.newmdp;
-            let mdp=req.body.mdp;
+            let newmdp= spl(req.body.newmdp);
+            let mdp=spl(req.body.mdp);
 
             pool.query(
                 "select mdp from utilisateurs where mail = $1",

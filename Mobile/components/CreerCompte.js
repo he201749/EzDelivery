@@ -3,6 +3,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import { TextInput } from 'react-native-paper';
+import {verifyMail,verifyPassword} from '../function';
 
 export default class CreerCompte extends React.Component{
     constructor(props){
@@ -52,33 +53,42 @@ export default class CreerCompte extends React.Component{
     }
 
     creer= async() =>{
-        if(this.state.mdp != this.state.mdp2){
-            this.setState({txtAlert:'Les deux mots de passes ne sont pas identiques'})
-        }
-        else{
             if(this.state.mail!='' && this.state.nom!='' && this.state.prenom!='' && this.state.mdp!='' && this.state.mdp2!='' ){
-                let usr={
-                    mail: this.state.mail,
-                    mdp : this.state.mdp,
-                    nom: this.state.nom,
-                    prenom: this.state.prenom
+                if(verifyMail(this.state.mail)){
+                    if(verifyPassword(this.state.mdp)){
+                        if(this.state.mdp != this.state.mdp2){
+                            this.setState({txtAlert:'Les deux mots de passes ne sont pas identiques'})
+                        }else{
+                            let usr={
+                                mail: this.state.mail,
+                                mdp : this.state.mdp,
+                                nom: this.state.nom,
+                                prenom: this.state.prenom
+                            }
+                            let res= await axios.post(server+'/api/newUtilisateurs', usr);
+                            if(res.data=='existant'){
+                                this.setState({txtAlert:'Adresse email déjà utilisée'})
+                            }
+                            else if(!res.data){
+                                this.setState({txtAlert:"Une erreur s'est produite"})
+                            }else if(res.data){
+                                this.clean();
+                                this.props.close();
+                                this.props.open();
+                            }      
+                        }  
+                    }
+                    else{
+                        this.setState({txtAlert:'Le mot de passe nécessite au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial'})
+                    }
                 }
-                let res= await axios.post(server+'/api/newUtilisateurs', usr);
-                if(res.data=='existant'){
-                    this.setState({txtAlert:'Adresse email déjà utilisée'})
+                else{
+                    this.setState({txtAlert:'Mauvaise adresse email'})
                 }
-                else if(!res.data){
-                    this.setState({txtAlert:"Une erreur s'est produite"})
-                }else if(res.data){
-                    this.clean();
-                    this.props.close();
-                    this.props.open();
-                }        
             }
             else{
                 this.setState({txtAlert:'Veuillez remplir tous les champs'})
             }
-        }
     }
 
 
