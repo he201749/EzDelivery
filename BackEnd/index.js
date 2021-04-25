@@ -6,6 +6,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -83,7 +84,7 @@ function strRandom(o) {
       c += e[Math.floor(Math.random() * e.length)];
     }
     return c;
-  }
+}
   
 app.post('/api/resetPwd/:mail', (req,res)=>{
     let mail= req.params.mail;
@@ -108,20 +109,37 @@ app.post('/api/resetPwd/:mail', (req,res)=>{
     );
 })
 
-app.get("/api/utilisateurs/:mail", (req, res) => {
-    const { mail } = req.params;
+function verifyToken(req,res,next){
+    const bearerHeader= req.headers['authorization'];
+    if(typeof bearerHeader !== 'undefined'){
+        const bearer= bearerHeader.split(' ');
+        const bearerToken= bearer[1];
+        req.token= bearerToken;
+        next();
+    }else{
+        res.send(false);
+    }
+}
 
-    pool.query(
-        "SELECT nom, prenom, mail FROM utilisateurs WHERE mail = $1",
-        [mail],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(results.rows);
+app.get("/api/utilisateurs", verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            pool.query(
+                "SELECT nom, prenom, mail FROM utilisateurs WHERE mail = $1",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
+        
+                    return res.send(results.rows);
+                }
+            );
         }
-    );
+    })
 });
 
 app.get("/api/livraisons/:boite", (req, res) => {
@@ -155,173 +173,207 @@ app.put("/api/livraisons/:id", (req, res) => {
     );
 });
 
-app.get("/api/livraisons/mail/:mail", (req, res) => {
-    const { mail } = req.params;
-
-    pool.query(
-        "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0 ORDER BY id DESC",
-        [mail],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(results.rows);
+app.get("/api/livraisons/mail", verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            pool.query(
+                "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0 ORDER BY id DESC",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
+        
+                    return res.send(results.rows);
+                }
+            );
         }
-    );
+    })
 });
 
-app.get("/api/acces/:mail", (req, res) => {
-    const { mail } = req.params;
-
-    pool.query(
-        "SELECT * FROM acces WHERE utilisateur = $1",
-        [mail],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(results.rows);
+app.get("/api/acces", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            pool.query(
+                "SELECT * FROM acces WHERE utilisateur = $1",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
+        
+                    return res.send(results.rows);
+                }
+            );
         }
-    );
+    })
 });
 
-app.delete("/api/livraisons/:id", (req, res) => {
-    const { id } = req.params;
-
-    pool.query(
-        "DELETE FROM livraisons where id=$1",
-        [id],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(true);
+app.delete("/api/livraisons/:id",verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let id = req.params.id;
+            pool.query(
+                "DELETE FROM livraisons where id=$1 and utilisateur=$2",
+                [id,mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
+        
+                    return res.send(true);
+                }
+            );
         }
-    );
+    })
 });
 
-app.post("/api/livraisons", (req, res) => {
-    let numcolis= req.body.numcolis;
-    let mail= req.body.mail;
-    let boite= Number(req.body.boite);
-    let nom= req.body.nom;
-    let cadeau= Number(req.body.cadeau);
+app.post("/api/livraisons", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let numcolis= req.body.numcolis;
+            let boite= Number(req.body.boite);
+            let nom= req.body.nom;
+            let cadeau= Number(req.body.cadeau);
 
-    pool.query(
-        "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,$4,NOW(),$5)",
-        [numcolis,mail,boite,nom,cadeau],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
+            pool.query(
+                "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,$4,NOW(),$5)",
+                [numcolis,mail,boite,nom,cadeau],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
 
-            return res.send(true);
+                    return res.send(true);
+                }
+            );
         }
-    );
+    })
 });
 
-app.post("/api/gift", (req, res) => {
-    try{
-    let numcolis= req.body.numcolis;
-    let boite= Number(req.body.boite);
-    let mdp=req.body.mdp;
-    let mail= req.body.mail;
+app.post("/api/gift", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let numcolis= req.body.numcolis;
+            let boite= Number(req.body.boite);
+            let mdp=req.body.mdp;
+            let allboites;
+            let good=false;
+            pool.query(
+                "SELECT * FROM boites",
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
 
-    let allboites;
-    let good=false;
-    pool.query(
-        "SELECT * FROM boites",
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            allboites=results.rows;
-            for(let i=0;i<allboites.length;i++){
-                if(boite==allboites[i].id){
-                    if(allboites[i].mdp==mdp){
-                        good=true;
+                    allboites=results.rows;
+                    for(let i=0;i<allboites.length;i++){
+                        if(boite==allboites[i].id){
+                            if(allboites[i].mdp==mdp){
+                                good=true;
+                            }
+                        }
+                    }
+                    if(good){
+                        pool.query(
+                            "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,'cadeau',NOW(),1)",
+                            [numcolis,mail,boite],
+                            (errors, results) => {
+                                if (errors) {
+                                    return res.send(error);
+                                }
+                
+                                return res.send(true);
+                            }
+                        );
+                    }
+                    else{
+                        return res.send(false);
                     }
                 }
-            }
-            if(good){
-                pool.query(
-                    "insert into livraisons (numcolis,utilisateur,boite,nom,datedebut,cadeau) values ($1,$2,$3,'cadeau',NOW(),1)",
-                    [numcolis,mail,boite],
-                    (errors, results) => {
-                        if (errors) {
-                            return res.send(error);
-                        }
+            );
+        }
+    })
+});
+
+app.delete("/api/acces/:boite", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let boite=req.params.boite;
+
+            pool.query(
+                "DELETE FROM acces where utilisateur=$1 AND boite=$2",
+                [mail,boite],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
         
-                        return res.send(true);
-                    }
-                );
-            }
-            else{
-                return res.send(false);
-            }
+                    return res.send(true);
+                }
+            );
         }
-    );
-    }
-    catch(error){
-        return res.send(error);
-    }
+    })
 });
 
-app.delete("/api/acces/:mail&:boite", (req, res) => {
-    let mail=req.params.mail;
-    let boite=req.params.boite;
+app.post("/api/acces",verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let num= Number(req.body.num);
+            let mdp= req.body.mdp;
+            let nom= req.body.nom;
 
-    pool.query(
-        "DELETE FROM acces where utilisateur=$1 AND boite=$2",
-        [mail,boite],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(true);
-        }
-    );
-});
-
-app.post("/api/acces", (req, res) => {
-    let num= Number(req.body.num);
-    let mail= req.body.mail;
-    let mdp= req.body.mdp;
-    let nom= req.body.nom;
-
-    pool.query(
-        "select mdp from boites where id=$1",
-        [num],
-        (error, results) => {
-            if (error) {
-                return res.send(false);
-            }
-            if(results.rows.length==0){
-                return res.send(false);
-            }
-            if(mdp!=results.rows[0].mdp){
-                return res.send(false)
-            }
-            else{
-                pool.query(
-                    "Insert into acces(utilisateur,boite,nom) values ($1,$2,$3)",
-                    [mail,num,nom],
-                    (errors, results) => {
-                        if (errors) {
-                            return res.send(false);
-                        }
-            
-                        return res.send(true);
+            pool.query(
+                "select mdp from boites where id=$1",
+                [num],
+                (error, results) => {
+                    if (error) {
+                        return res.send(false);
                     }
-                );
-            }
+                    if(results.rows.length==0){
+                        return res.send(false);
+                    }
+                    if(mdp!=results.rows[0].mdp){
+                        return res.send(false)
+                    }
+                    else{
+                        pool.query(
+                            "Insert into acces(utilisateur,boite,nom) values ($1,$2,$3)",
+                            [mail,num,nom],
+                            (errors, results) => {
+                                if (errors) {
+                                    return res.send(false);
+                                }
+                    
+                                return res.send(true);
+                            }
+                        );
+                    }
+                }
+            );
         }
-    );
+    })
 });
 
 app.post("/api/utilisateurs", (req, res) => {
@@ -342,7 +394,9 @@ app.post("/api/utilisateurs", (req, res) => {
                 return res.send(false);
             }
             if(mdp==results.rows[0].mdp){
-                return res.send(true);
+                jwt.sign({mail},'b7j3x3MZR', (err,token)=>{
+                    res.send(token);
+                })
             }
         }
     );
@@ -383,104 +437,130 @@ app.post("/api/newUtilisateurs", (req, res) => {
 
 
 
-app.put("/api/utilisateurs/nom/:mail", (req, res) => {
-    let txt= req.body.txt;
-    let mail= req.params.mail;
+app.put("/api/utilisateurs/nom", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let txt= req.body.txt;
 
-    pool.query(
-        "update utilisateurs set nom=$1 where mail=$2",
-        [txt,mail],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(true);
-        }
-    );
-});
-
-app.put("/api/utilisateurs/prenom/:mail", (req, res) => {
-    let txt= req.body.txt;
-    let mail= req.params.mail;
-
-    pool.query(
-        "update utilisateurs set prenom=$1 where mail=$2",
-        [txt,mail],
-        (error, results) => {
-            if (error) {
-                return res.send(error);
-            }
-
-            return res.send(true);
-        }
-    );
-});
-
-app.put("/api/utilisateurs/mail/:mail", (req, res) => {
-    let newmail= req.body.mail;
-    let mdp=req.body.mdp;
-    let mail= req.params.mail;
-
-    pool.query(
-        "select mdp from utilisateurs where mail = $1",
-        [mail],
-        (error, results) => {
-            if (error) {
-                return res.send(false);
-            }
-            if(results.rows.length==0){
-                return res.send(false);
-            }
-            if(results.rows[0].mdp==mdp){
-                pool.query(
-                    "update utilisateurs set mail=$1 where mail=$2",
-                    [newmail,mail],
-                    (error2, results2) => {
-                        if (error2) {
-                            return res.send(false);
-                        }
-                        return res.send(true);
+            pool.query(
+                "update utilisateurs set nom=$1 where mail=$2",
+                [txt,mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
                     }
-                )
-            }
-            else{
-                return res.send(false);
-            }
+        
+                    return res.send(true);
+                }
+            );
         }
-    );
+    })
 });
 
-app.put("/api/utilisateurs/mdp/:mail", (req, res) => {
-    let newmdp= req.body.newmdp;
-    let mdp=req.body.mdp;
-    let mail= req.params.mail;
+app.put("/api/utilisateurs/prenom", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let txt= req.body.txt;
 
-    pool.query(
-        "select mdp from utilisateurs where mail = $1",
-        [mail],
-        (error, results) => {
-            if (error) {
-                return res.send(false);
-            }
-            if(results.rows.length==0){
-                return res.send(false);
-            }
-            if(results.rows[0].mdp==mdp){
-                pool.query(
-                    "update utilisateurs set mdp=$1 where mail=$2",
-                    [newmdp,mail],
-                    (error2, results2) => {
-                        if (error2) {
-                            return res.send(false);
-                        }
-                        return res.send(true);
+            pool.query(
+                "update utilisateurs set prenom=$1 where mail=$2",
+                [txt,mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
                     }
-                )
-            }
-            else{
-                return res.send(false);
-            }
+        
+                    return res.send(true);
+                }
+            );
         }
-    );
+    })
 });
+
+app.put("/api/utilisateurs/mail", verifyToken,(req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let newmail= req.body.mail;
+            let mdp=req.body.mdp;
+
+            pool.query(
+                "select mdp from utilisateurs where mail = $1",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(false);
+                    }
+                    if(results.rows.length==0){
+                        return res.send(false);
+                    }
+                    if(results.rows[0].mdp==mdp){
+                        pool.query(
+                            "update utilisateurs set mail=$1 where mail=$2",
+                            [newmail,mail],
+                            (error2, results2) => {
+                                if (error2) {
+                                    return res.send(false);
+                                }
+                                return res.send(true);
+                            }
+                        )
+                    }
+                    else{
+                        return res.send(false);
+                    }
+                }
+            );
+        }
+    })
+});
+
+app.put("/api/utilisateurs/mdp",verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            let newmdp= req.body.newmdp;
+            let mdp=req.body.mdp;
+
+            pool.query(
+                "select mdp from utilisateurs where mail = $1",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(false);
+                    }
+                    if(results.rows.length==0){
+                        return res.send(false);
+                    }
+                    if(results.rows[0].mdp==mdp){
+                        pool.query(
+                            "update utilisateurs set mdp=$1 where mail=$2",
+                            [newmdp,mail],
+                            (error2, results2) => {
+                                if (error2) {
+                                    return res.send(false);
+                                }
+                                return res.send(true);
+                            }
+                        )
+                    }
+                    else{
+                        return res.send(false);
+                    }
+                }
+            );
+        }
+    })
+});
+
+

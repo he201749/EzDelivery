@@ -14,6 +14,7 @@ class BoitesScreen extends React.Component{
         super(props);
         this.state={
             mail:'',
+            token:'',
             tabBoites:[],
             modalVisible: false,
             txtAlert:'',
@@ -34,9 +35,9 @@ class BoitesScreen extends React.Component{
     }
 
     delAcces = async () =>{
-        let res =await axios.delete(server+'/api/acces/'+this.state.mail+'&'+this.state.boiteDelete);
+        let res =await axios.delete(server+'/api/acces/'+this.state.boiteDelete,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
         if(res.data){
-            let res2= await axios.get(server+'/api/acces/'+this.state.mail);
+            let res2= await axios.get(server+'/api/acces',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             this.setState({tabBoites:res2.data});
             this.setState({ modalVisibleAsk: false });
         }
@@ -74,9 +75,9 @@ class BoitesScreen extends React.Component{
                 mdp: this.state.mdpBoiteAdd,
                 nom: this.state.nomBoiteAdd
             }
-            let res= await axios.post(server+'/api/acces',newBoite);
+            let res= await axios.post(server+'/api/acces',newBoite,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
-                axios.get(server+'/api/acces/'+this.state.mail)
+                axios.get(server+'/api/acces',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
                 .then( res2 => {
                     this.setState({tabBoites:res2.data});
                     this.setState({txtAlert:''});
@@ -101,9 +102,12 @@ class BoitesScreen extends React.Component{
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
             this.setState({mail:value});
-            axios.get(server+'/api/acces/'+this.state.mail)
-            .then( res => {
-                this.setState({tabBoites:res.data});
+            AsyncStorage.getItem('token').then((value2)=>{
+                this.setState({token:value2});
+                axios.get(server+'/api/acces', { headers: {'Authorization': `Bearer ${value2}` }})
+                .then( res => {
+                    this.setState({tabBoites:res.data});
+                })
             })
         })
     }

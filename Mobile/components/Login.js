@@ -90,6 +90,7 @@ export default class Login extends React.Component{
             let res= await axios.post(server+'/api/utilisateurs',user);
             if(res.data){
                 await AsyncStorage.setItem('mail', this.state.mail)
+                await AsyncStorage.setItem('token', res.data)
                 this.setState({mail:''});
                 this.setState({mdp:''});
                 this.setState({txtAlert:''});

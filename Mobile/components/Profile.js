@@ -12,6 +12,7 @@ class ProfileScreen extends React.Component{
         super(props);
         this.state={
             mail:'',
+            token:'',
             nom: '',
             prenom: '',
             modaleVisibleMail: false,
@@ -42,16 +43,16 @@ class ProfileScreen extends React.Component{
         this.cleanMail();
     }
     handleNom=(text)=>{
-        axios.put(server+'/api/utilisateurs/nom/'+this.state.mail,{txt:text});
-        axios.get(server+'/api/utilisateurs/'+this.state.mail)
+        axios.put(server+'/api/utilisateurs/nom',{txt:text},{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+        axios.get(server+'/api/utilisateurs',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
         .then(res => {
             this.setState({nom:res.data[0].nom});
             this.setState({prenom:res.data[0].prenom});
         })
     }
     handlePrenom=(text)=>{
-        axios.put(server+'/api/utilisateurs/prenom/'+this.state.mail,{txt:text});
-        axios.get(server+'/api/utilisateurs/'+this.state.mail)
+        axios.put(server+'/api/utilisateurs/prenom',{txt:text},{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+        axios.get(server+'/api/utilisateurs',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
         .then(res => {
             this.setState({nom:res.data[0].nom});
             this.setState({prenom:res.data[0].prenom});
@@ -71,10 +72,9 @@ class ProfileScreen extends React.Component{
     changeMail=async()=>{
         if(this.state.newMail!='' && this.state.mail!=''){
             let usr={
-                mail:this.state.newMail,
                 mdp: this.state.mdp
             }
-            let res=await axios.put(server+'/api/utilisateurs/mail/'+this.state.mail,usr);
+            let res=await axios.put(server+'/api/utilisateurs/mail',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
                 this.cleanMail();
                 this.setState({modaleVisibleMail:false});
@@ -116,7 +116,7 @@ class ProfileScreen extends React.Component{
                     newmdp:this.state.nouveaumdp,
                     mdp: this.state.ancienmdp
                 }
-                let res=await axios.put(server+'/api/utilisateurs/mdp/'+this.state.mail,usr);
+                let res=await axios.put(server+'/api/utilisateurs/mdp',usr,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
                 if(res.data){
                     this.cleanMdp();
                     this.setState({modalMdp:false});
@@ -140,10 +140,13 @@ class ProfileScreen extends React.Component{
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
             this.setState({mail:value});
-            axios.get(server+'/api/utilisateurs/'+this.state.mail)
-            .then( res => {
-                this.setState({nom:res.data[0].nom});
-                this.setState({prenom:res.data[0].prenom});
+            AsyncStorage.getItem('token').then((value2)=>{
+                this.setState({token:value2});
+                axios.get(server+'/api/utilisateurs',{ headers: {'Authorization': `Bearer ${value2}` }})
+                .then( res => {
+                    this.setState({nom:res.data[0].nom});
+                    this.setState({prenom:res.data[0].prenom});
+                })
             })
         })
     }

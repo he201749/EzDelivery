@@ -15,6 +15,7 @@ class LivraisonsScreen extends React.Component{
         super(props);
         this.state={
             mail:'',
+            token:'',
             tabLiv:[],
             tabBoites:[],
             modalVisible: false,
@@ -46,7 +47,7 @@ class LivraisonsScreen extends React.Component{
         this.setState({numColisGift:text})
     }
     setModalVisible = () => {
-        axios.get(server+'/api/acces/'+this.state.mail)
+        axios.get(server+'/api/acces',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
         .then( res => {
             this.setState({tabBoites:res.data});
             this.setState({ modalVisible: true });
@@ -56,9 +57,9 @@ class LivraisonsScreen extends React.Component{
         this.setState({ modalGiftVisible: true });
     }
     delLivraison =async (id) =>{
-        let res =await axios.delete(server+'/api/livraisons/'+id);
+        let res =await axios.delete(server+'/api/livraisons/'+id,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
         if(res.data){
-            let res2= await axios.get(server+'/api/livraisons/mail/'+this.state.mail);
+            let res2= await axios.get(server+'/api/livraisons/mail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             this.setState({tabLiv:res2.data});
         }
     }
@@ -84,14 +85,13 @@ class LivraisonsScreen extends React.Component{
         if(this.state.numColis!='' && this.state.descriptionColis!='' && this.state.selectedBoite!=''){
             let newLiv= {
                 numcolis : this.state.numColis,
-                mail : this.state.mail,
                 boite : this.state.selectedBoite,
                 nom : this.state.descriptionColis,
                 cadeau : 0
             };
-            let res= await axios.post(server+'/api/livraisons',newLiv);
+            let res= await axios.post(server+'/api/livraisons',newLiv,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
-                let res2= await axios.get(server+'/api/livraisons/mail/'+this.state.mail);
+                let res2= await axios.get(server+'/api/livraisons/mail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
                 this.setState({tabLiv:res2.data});
             }
             this.cleanNewLiv();
@@ -126,12 +126,11 @@ class LivraisonsScreen extends React.Component{
     sendGiftLiv=async ()=>{
         if(this.state.numColisGift!='' && this.state.numeroBoiteGift!='' && this.state.mdpBoiteGift!=''){
             let newLiv= {
-                mail : this.state.mail,
                 numcolis : this.state.numColisGift,
                 boite : this.state.numeroBoiteGift,
                 mdp : this.state.mdpBoiteGift
             };
-            let res= await axios.post(server+'/api/gift',newLiv);
+            let res= await axios.post(server+'/api/gift',newLiv,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
                 this.setState({modalGiftVisible:false});
                 this.setState({txtAlert:''});
@@ -161,12 +160,14 @@ class LivraisonsScreen extends React.Component{
     }
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
-                this.setState({mail:value});
-                axios.get(server+'/api/livraisons/mail/'+this.state.mail)
+            this.setState({mail:value});
+            AsyncStorage.getItem('token').then((value2)=>{
+                this.setState({token:value2});
+                axios.get(server+'/api/livraisons/mail',{ headers: {'Authorization': `Bearer ${value2}` }})
                 .then( res => {
                     this.setState({tabLiv:res.data});
                 })
-                axios.get(server+'/api/acces/'+this.state.mail)
+                axios.get(server+'/api/acces',{ headers: {'Authorization': `Bearer ${value2}` }})
                 .then( res => {
                     this.setState({tabBoites:res.data});
                     let tab=[];
@@ -175,7 +176,7 @@ class LivraisonsScreen extends React.Component{
                     }
                     this.setState({tabCheck:tab});
                 })
-            
+            })
         })
     }
 
