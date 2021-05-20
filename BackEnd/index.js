@@ -217,7 +217,7 @@ app.get("/api/acces", verifyToken,(req, res) => {
         }else{
             let mail = authdata.mail;
             pool.query(
-                "SELECT * FROM acces WHERE utilisateur = $1",
+                "SELECT acces.utilisateur as utilisateur, acces.boite as boite, acces.nom as nom, boites.ip as ip FROM acces INNER JOIN boites ON acces.boite=boites.id WHERE acces.utilisateur = $1",
                 [mail],
                 (error, results) => {
                     if (error) {
@@ -599,3 +599,60 @@ app.delete("/api/utilisateurs",verifyToken, (req, res) => {
 });
 
 
+app.get("/api/livraisonsmailstatut", verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            pool.query(
+                "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0 ORDER BY datefin DESC",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
+        
+                    return res.send(results.rows);
+                }
+            );
+        }
+    })
+});
+
+app.get("/api/livraisonsmailboites", verifyToken, (req, res) => {
+    jwt.verify(req.token,'b7j3x3MZR',(err,authdata)=>{
+        if(err){
+            res.send(false)
+        }else{
+            let mail = authdata.mail;
+            pool.query(
+                "SELECT * FROM livraisons WHERE utilisateur = $1 AND cadeau=0 ORDER BY boite",
+                [mail],
+                (error, results) => {
+                    if (error) {
+                        return res.send(error);
+                    }
+        
+                    return res.send(results.rows);
+                }
+            );
+        }
+    })
+});
+
+app.put("/api/modifylivraisons/:id", (req, res) => {
+    const { id } = req.params;
+
+    pool.query(
+        "UPDATE livraisons SET datefin = CURRENT_DATE WHERE id=$1",
+        [id],
+        (error, results) => {
+            if (error) {
+                return res.send(error);
+            }
+
+            return res.send(true);
+        }
+    );
+});

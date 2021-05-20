@@ -28,7 +28,14 @@ class LivraisonsScreen extends React.Component{
             mdpBoiteGift:'',
             numColisGift:'',
             animationSuccess:false,
-            tabCheck: []
+            tabCheck: [],
+            triRien: true,
+            triStatut: false,
+            triBoites: false,
+            modalVisibleAskDelete:false,
+            idtodelete:0,
+            modalVisibleAskModify:false,
+            idtomodify:0
         }
     }
 
@@ -59,11 +66,13 @@ class LivraisonsScreen extends React.Component{
     setModalGiftVisible = () => {
         this.setState({ modalGiftVisible: true });
     }
-    delLivraison =async (id) =>{
-        let res =await axios.delete(server+'/api/livraisons/'+id,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+    delLivraison =async () =>{
+        let res =await axios.delete(server+'/api/livraisons/'+this.state.idtodelete,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
         if(res.data){
+            this.setState({triBoites:false,triStatut:false,triRien:true})
             let res2= await axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             this.setState({tabLiv:res2.data});
+            this.setState({modalVisibleAskDelete:false})
         }
     }
     findBoite = (num) =>{
@@ -94,6 +103,7 @@ class LivraisonsScreen extends React.Component{
             };
             let res= await axios.post(server+'/api/livraisons',newLiv,{ headers: {'Authorization': `Bearer ${this.state.token}` }});
             if(res.data){
+                this.setState({triBoites:false,triStatut:false,triRien:true})
                 let res2= await axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
                 this.setState({tabLiv:res2.data});
             }
@@ -161,6 +171,61 @@ class LivraisonsScreen extends React.Component{
         tab[num]=true;
         this.setState({tabCheck:tab});
     }
+    triRien = () =>{
+        if(!this.state.triRien){
+            this.setState({triBoites:false,triStatut:false,triRien:true})
+            axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
+            .then( res => {
+                this.setState({tabLiv:res.data});
+            })
+        }
+    }
+    triStatut = () =>{
+        if(!this.state.triStatut){
+            this.setState({triBoites:false,triRien:false,triStatut:true})
+            axios.get(server+'/api/livraisonsmailstatut',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
+            .then( res => {
+                this.setState({tabLiv:res.data});
+            })
+        }
+    }
+    triBoites = () =>{
+        if(!this.state.triBoites){
+            this.setState({triStatut:false,triRien:false,triBoites:true})
+            axios.get(server+'/api/livraisonsmailboites',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
+            .then( res => {
+                this.setState({tabLiv:res.data});
+            })
+        }
+    }
+    modifyStatus = async () =>{
+        let res=await axios.put(server+'/api/modifylivraisons/'+this.state.idtomodify)
+        if(res.data){
+            this.setState({triBoites:false,triStatut:false,triRien:true})
+            let res2= await axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }});
+            this.setState({tabLiv:res2.data});
+            this.setState({modalVisibleAskModify:false})
+        }
+    }
+
+    openmodaldelete = (id)=>{
+        this.setState({idtodelete:id})
+        this.setState({modalVisibleAskDelete:true})
+    }
+
+    openmodalmodify = (id)=>{
+        this.setState({idtomodify:id})
+        this.setState({modalVisibleAskModify:true})
+    }
+
+    closeAskModify = () =>{
+        this.setState({modalVisibleAskModify:false})
+    }
+
+    closeAskDelete = () =>{
+        this.setState({modalVisibleAskDelete:false})
+    }
+
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
             this.setState({mail:value});
@@ -188,10 +253,68 @@ class LivraisonsScreen extends React.Component{
             <View>
                 <Appbar.Header  style={{backgroundColor:'#c0dfef'}}>
                     <Appbar.Action icon="gift" onPress={this.setModalGiftVisible} />
-                    <Appbar.Content title="Livraisons" />
+                    <Appbar.Content title="Livraisons"/>
                     <Appbar.Action icon="plus" onPress={this.setModalVisible} />
 
                 </Appbar.Header>
+                <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={this.state.modalVisibleAskDelete}
+                            hasBackdrop={true}
+                            backdropOpacity={10}
+                        >
+                    <View style={{marginTop:'40%'}}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText2}>Êtes-vous sûr de vouloir supprimer cette livraison ?</Text>
+                            <View style={{flexDirection:'row', flexWrap:'wrap',marginTop:15}}>
+                                <TouchableOpacity
+                                        style={styles.loginScreenButton}
+                                        onPress={this.delLivraison}
+                                        underlayColor='#fff'>
+                                        <Text style={styles.loginText}>Oui</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                        style={styles.loginScreenButton}
+                                        onPress={this.closeAskDelete}
+                                        underlayColor='#fff'>
+                                        <Text style={styles.loginText}>Non</Text>
+                                </TouchableOpacity>
+      
+        
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={this.state.modalVisibleAskModify}
+                            hasBackdrop={true}
+                            backdropOpacity={10}
+                        >
+                    <View style={{marginTop:'40%'}}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText2}>Êtes-vous sûr de vouloir modifier le statut de cette livraison ?</Text>
+                            <View style={{flexDirection:'row', flexWrap:'wrap',marginTop:15}}>
+                                <TouchableOpacity
+                                        style={styles.loginScreenButton}
+                                        onPress={this.modifyStatus}
+                                        underlayColor='#fff'>
+                                        <Text style={styles.loginText}>Oui</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                        style={styles.loginScreenButton}
+                                        onPress={this.closeAskModify}
+                                        underlayColor='#fff'>
+                                        <Text style={styles.loginText}>Non</Text>
+                                </TouchableOpacity>
+      
+        
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
                 <Modal
                             animationType="slide"
                             transparent={true}
@@ -327,24 +450,42 @@ class LivraisonsScreen extends React.Component{
                     </View>
                 </Modal>
                 <ScrollView style={{height:'86%'}}>
+                    <View style={{height:30,flexDirection:'row' }}>
+                        <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Trier par : </Text>
+                        <CheckBox onClick={this.triRien} isChecked={this.state.triRien} style={{marginTop:4,marginLeft:13}}/>
+                        <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Pas de tri</Text>
+                        <CheckBox onClick={this.triStatut} isChecked={this.state.triStatut} style={{marginTop:4,marginLeft:13}}/>
+                        <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Statut</Text>
+                        <CheckBox onClick={this.triBoites} isChecked={this.state.triBoites} style={{marginTop:4,marginLeft:13}}/>
+                        <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Boites</Text>
+                    </View>
                      {
                             this.state.tabLiv.map((l, i) => (
                             <ListItem key={i} bottomDivider style={{width:"100%"}}>
                                 <ListItem.Content >
-                                    <ListItem.Title style={{fontSize:25}}>{l.nom}</ListItem.Title>
-                                    <ListItem.Subtitle style={{marginTop:10}}><Text>Numéro de colis: {l.numcolis}</Text></ListItem.Subtitle>
-                                    <ListItem.Subtitle><Text>Passée le: {new Date(l.datedebut).toLocaleDateString()}</Text></ListItem.Subtitle>
+                                    <ListItem.Title style={{fontSize:25,color:'#226557'}}>{l.nom}</ListItem.Title>
+                                    <ListItem.Subtitle style={{marginTop:10}}><Text style={{color:'#9E9E9E'}}>Numéro de colis:</Text> <Text style={{color:'#226557'}}>{l.numcolis}</Text></ListItem.Subtitle>
+                                    <ListItem.Subtitle><Text style={{color:'#9E9E9E'}}>Passée le: </Text><Text style={{color:'#226557'}}>{new Date(l.datedebut).toLocaleDateString()}</Text></ListItem.Subtitle>
                                     <ListItem.Subtitle>
-                                            <Text>Statut: {l.datefin==null ? <Text style={{color:'red'}}>Non livré</Text> : <Text style={{color:'green'}}>Livré le {new Date(l.datefin).toLocaleDateString()}</Text>}</Text>
+                                            <Text style={{color:'#9E9E9E'}}>Statut: </Text><Text>{l.datefin==null ? <Text style={{color:'red'}}>Non livré</Text> : <Text style={{color:'green'}}>Livré le {new Date(l.datefin).toLocaleDateString()}</Text>}</Text>
                                     </ListItem.Subtitle>
-                                    <ListItem.Subtitle><Text>Boites aux lettres: {this.findBoite(l.boite)}</Text></ListItem.Subtitle>
+                                    <ListItem.Subtitle><Text style={{color:'#9E9E9E'}}>Boites aux lettres: </Text><Text style={{color:'#226557'}}>{this.findBoite(l.boite)}</Text></ListItem.Subtitle>
                                 </ListItem.Content>
+                                <View style={{flexDirection:'line'}}>
+                                {l.datefin==null?
+                                <IconButton
+                                                icon="check"
+                                                color='#226557'
+                                                size={30}
+                                                onPress={() => this.openmodalmodify(l.id)}
+                                /> : null}
                                 <IconButton
                                                 icon="delete"
                                                 color='#226557'
                                                 size={30}
-                                                onPress={() => this.delLivraison(l.id)}
+                                                onPress={() => this.openmodaldelete(l.id)}
                                 />
+                                </View>
                             </ListItem>
                             ))
                     }

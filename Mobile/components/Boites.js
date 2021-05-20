@@ -47,8 +47,8 @@ class BoitesScreen extends React.Component{
         this.setState({ modalVisibleAsk: false });
     }
 
-    openDoor = (id) =>{
-
+    openDoor = (ip) =>{
+        axios.post('http://'+ip+':8090/openDoor');
     }
 
     handleNumBoite = (text) =>{
@@ -209,9 +209,9 @@ class BoitesScreen extends React.Component{
                             <ListItem key={i} bottomDivider style={{width:"100%"}}>
                                 <ListItem.Content>
                                     <ListItem.Title style={{fontSize:25}}>{l.nom}</ListItem.Title>
-                                    <ListItem.Subtitle style={{marginTop:10}}><Text>Numéro de la boite: {l.boite}</Text></ListItem.Subtitle>
+                                    <ListItem.Subtitle style={{marginTop:10}}><Text style={{color:'#9E9E9E'}}>Numéro de la boite: </Text><Text>{l.boite}</Text></ListItem.Subtitle>
                                 </ListItem.Content>
-                                <Button title="Ouvrir" onPress={()=> this.openDoor(l.boite)} color='#226557'/>
+                                <Button title="Ouvrir" onPress={()=> this.openDoor(l.ip)} color='#226557'/>
                                 <IconButton
                                                 icon="delete"
                                                 color='#226557'
