@@ -1,9 +1,7 @@
 import React from 'react';  
-import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal, TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
-import { ListItem} from 'react-native-elements';
-import { Appbar, IconButton} from 'react-native-paper';
 import CreerCompte from './CreerCompte';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';

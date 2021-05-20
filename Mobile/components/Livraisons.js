@@ -1,6 +1,6 @@
  
 import React from 'react';  
-import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal,TouchableOpacity, ScrollView} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
 import { ListItem} from 'react-native-elements';
@@ -19,7 +19,7 @@ class LivraisonsScreen extends React.Component{
             tabLiv:[],
             tabBoites:[],
             modalVisible: false,
-            selectedBoite:'1',
+            selectedBoite:'',
             numColis:'',
             descriptionColis:'',
             txtAlert:'',
@@ -58,9 +58,8 @@ class LivraisonsScreen extends React.Component{
         axios.get(server+'/api/acces',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
         .then( res => {
             this.setState({tabBoites:res.data});
-            if(res.data.length>0){
-                this.setState({ modalVisible: true });
-            }
+            this.setState({ modalVisible: true });
+            
         })
     }
     setModalGiftVisible = () => {
@@ -450,8 +449,9 @@ class LivraisonsScreen extends React.Component{
                     </View>
                 </Modal>
                 <ScrollView style={{height:'86%'}}>
+                    {this.state.tabLiv.length>1?
                     <View style={{height:30,flexDirection:'row' }}>
-                        <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Trier par : </Text>
+                        <Text style={{fontSize:17,marginTop:5,color:'#226557',marginLeft:4}}>Trier par : </Text>
                         <CheckBox onClick={this.triRien} isChecked={this.state.triRien} style={{marginTop:4,marginLeft:13}}/>
                         <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Pas de tri</Text>
                         <CheckBox onClick={this.triStatut} isChecked={this.state.triStatut} style={{marginTop:4,marginLeft:13}}/>
@@ -459,6 +459,8 @@ class LivraisonsScreen extends React.Component{
                         <CheckBox onClick={this.triBoites} isChecked={this.state.triBoites} style={{marginTop:4,marginLeft:13}}/>
                         <Text style={{fontSize:17,marginTop:5,color:'#226557'}}>Boites</Text>
                     </View>
+                    :
+                    null}
                      {
                             this.state.tabLiv.map((l, i) => (
                             <ListItem key={i} bottomDivider style={{width:"100%"}}>

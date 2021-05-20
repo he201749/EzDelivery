@@ -1,76 +1,68 @@
 import React from 'react';
-import {  View } from 'react-native';
-import {  createAppContainer } from 'react-navigation';
-import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
-import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon2 from 'react-native-vector-icons/Feather';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
-
-
 import LivraisonsScreen from './Livraisons';
 import BoitesScreen from './Boites';
 import ProfileScreen from './Profile';
-
-const TabNavigator = createMaterialBottomTabNavigator(
-  { 
-    Livraisons: {
-      screen: LivraisonsScreen,
-      navigationOptions: {
-        tabBarLabel: 'Livraisons',
-        tabBarIcon: ({ tintColor }) => (
-          <View>
-            <Icon style={[{ color: tintColor}]} size={20} name={'box-open'} />
-          </View>
-        ),
-      },
-    },
-
-       Boites: {
-      screen: BoitesScreen,
-      navigationOptions: {
-        tabBarLabel: 'Boites aux lettres',
-        tabBarIcon: ({ tintColor }) => (
-          <View>
-            <Icon3
-              style={[{ color: tintColor }]} size={25} name={'mailbox'} />
-          </View>
-        ),
-       
-      },
-    },
-
-    Profil: {
-      screen: ProfileScreen,
-      navigationOptions: {
-        tabBarLabel: 'Profil',
-        tabBarIcon: ({ tintColor }) => (
-          <View>
-            <Icon2
-              style={[{ color: tintColor }]} size={25} name={'user'} />
-          </View>
-        ),
-      },
-    },
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 
 
-  },
+const Tab = createMaterialBottomTabNavigator();
 
-     
-  {
-    initialRouteName: 'Livraisons',
-    activeColor: '#226557',
-    inactiveColor: '#9E9E9E',
-    barStyle: { backgroundColor: '#c0dfef' },
+export default class TabNavigator extends React.Component{
+
+  constructor(props){
+      super(props);
   }
-);
 
-
-export default createAppContainer(TabNavigator);
-
-
-
-
-
+  render(){
+    return(
+      <NavigationContainer>
+              <Tab.Navigator
+                initialRouteName="Livraisons"
+                activeColor="#226557"
+                inactiveColor= '#9E9E9E'
+                barStyle={{ backgroundColor: '#c0dfef' }}
+              >
+            <Tab.Screen
+              name="Livraisons"
+              component={LivraisonsScreen}
+              options={{
+                tabBarLabel: 'Livraisons',
+                tabBarIcon: ({ color }) => (
+                  <Icon style={[{ color: color}]} size={20} name={'box-open'} />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Boites"
+              component={BoitesScreen}
+              options={{
+                tabBarLabel: 'Boites aux lettres',
+                tabBarIcon: ({ color }) => (
+                  <Icon3
+                    style={[{ color: color }]} size={25} name={'mailbox'} />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Profil"
+              options={{
+                tabBarLabel: 'Profile',
+                tabBarIcon: ({ color }) => (
+                  <Icon2
+                    style={[{ color: color }]} size={25} name={'user'} />
+                ),
+              }}
+            >
+              {()=><ProfileScreen deconnect={this.props.deconnect} />}
+              </Tab.Screen>
+          </Tab.Navigator>
+      </NavigationContainer>
+    )
+  }
+}
 
 

@@ -1,9 +1,8 @@
 import React from 'react';  
-import { StyleSheet, Text, View,Modal, Button,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal, TouchableOpacity} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
-import { ListItem} from 'react-native-elements';
-import { Appbar, IconButton} from 'react-native-paper';
+import { Appbar} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';
 import {verifyMail,verifyPassword} from '../function';
@@ -103,6 +102,7 @@ class ProfileScreen extends React.Component{
         this.setState({recoModal:false});
         let txtasync='deco'
         await AsyncStorage.setItem('token', txtasync);
+        this.props.deconnect();
     }
 
     handleOldMdp=(text)=>{
@@ -149,6 +149,7 @@ class ProfileScreen extends React.Component{
         }
     }
     deco =async()=>{
+        this.props.deconnect();
         let txtasync='deco'
         await AsyncStorage.setItem('token', txtasync);
     }
@@ -166,6 +167,7 @@ class ProfileScreen extends React.Component{
         let txtasync='deco';
         await AsyncStorage.setItem('token', txtasync);
         this.setState({delModal:false});
+        this.props.deconnect();
     }
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
