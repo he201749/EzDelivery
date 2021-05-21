@@ -27,7 +27,6 @@ http.createServer(app).listen(8081, () => {
     console.log('App is running ! Go to http://localhost:8081');
 });
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const Pool = require("pg").Pool;
 const pool = new Pool({
