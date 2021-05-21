@@ -1,6 +1,6 @@
  
 import React from 'react';  
-import { StyleSheet, Text, View,Modal,TouchableOpacity, ScrollView} from "react-native";
+import { StyleSheet, Text, View,Modal,TouchableOpacity, ScrollView,RefreshControl} from "react-native";
 import {server} from '../constante';
 import axios from 'axios';
 import { ListItem} from 'react-native-elements';
@@ -35,7 +35,8 @@ class LivraisonsScreen extends React.Component{
             modalVisibleAskDelete:false,
             idtodelete:0,
             modalVisibleAskModify:false,
-            idtomodify:0
+            idtomodify:0,
+            refreshing:false
         }
     }
 
@@ -224,7 +225,15 @@ class LivraisonsScreen extends React.Component{
     closeAskDelete = () =>{
         this.setState({modalVisibleAskDelete:false})
     }
-
+    _onRefresh = () =>{
+        this.setState({refreshing: true});
+        axios.get(server+'/api/livraisonsmail',{ headers: {'Authorization': `Bearer ${this.state.token}` }})
+        .then( res => {
+            this.setState({triBoites:false,triStatut:false,triRien:true})
+            this.setState({tabLiv:res.data});
+            this.setState({refreshing: false});
+        })
+    }
     componentDidMount(){
         AsyncStorage.getItem('mail').then((value)=>{
             this.setState({mail:value});
@@ -448,7 +457,14 @@ class LivraisonsScreen extends React.Component{
                         </View>
                     </View>
                 </Modal>
-                <ScrollView style={{height:'86%'}}>
+                <ScrollView style={{height:'86%'}}
+                        refreshControl={
+                            <RefreshControl
+                              refreshing={this.state.refreshing}
+                              onRefresh={this._onRefresh}
+                            />
+                          }
+                >
                     {this.state.tabLiv.length>1?
                     <View style={{height:30,flexDirection:'row' }}>
                         <Text style={{fontSize:17,marginTop:5,color:'#226557',marginLeft:4}}>Trier par : </Text>

@@ -61,6 +61,23 @@ function CreateMail(mail, password) {
             }
     })
 }
+
+var mailOptions2 = {                         
+    from: 'EzDelivery.mail@gmail.com',
+    to: "",
+    subject: 'EzDelivery : Un colis a été livré',
+    text: ''
+};
+
+function CreateMail2(mail, nom) {
+    mailOptions2.to = mail;
+    mailOptions2.text = "Votre colis avec le nom : \n\n" + nom+ "\n\n vient d'être livré";
+    transporter.sendMail(mailOptions2, function(error, info){  
+            if (error) {
+                return false;
+            }
+    })
+}
 function strRandom(o) {
     var a = 10,
         b = 'abcdefghijklmnopqrstuvwxyz',
@@ -198,8 +215,21 @@ app.put("/api/livraisons/:id", (req, res) => {
             if (error) {
                 return res.send(error);
             }
-
-            return res.send(results.rows);
+            pool.query(
+                "SELECT utilisateur,nom FROM livraisons WHERE id=$1",
+                [id],
+                (errors, result2) => {
+                    if (errors) {
+                        return res.send(error);
+                    }
+                    if(result2.rows.length==0){
+                        return res.send(false);
+                    }
+                    CreateMail2(result2.rows[0].utilisateur, result2.rows[0].nom);
+                    return res.send(true);
+                }
+            )
+            
         }
     );
 });
