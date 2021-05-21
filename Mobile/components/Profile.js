@@ -149,9 +149,9 @@ class ProfileScreen extends React.Component{
         }
     }
     deco =async()=>{
-        this.props.deconnect();
         let txtasync='deco'
         await AsyncStorage.setItem('token', txtasync);
+        this.props.deconnect();
     }
     closemdpsucces=()=>{
         this.setState({mdpsuccesmodal:false})
