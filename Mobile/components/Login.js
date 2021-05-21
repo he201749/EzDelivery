@@ -68,7 +68,7 @@ export default class Login extends React.Component{
                     this.setState({forgetModal:false});
                 }
                 else{
-                    this.setState({txtAlert:"Une erreur s'est produite"});
+                    this.setState({txtAlert:"Aucun compte existant n'est associé à cette adresse mail"}); 
                 }
             }
             else{

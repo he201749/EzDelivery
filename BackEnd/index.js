@@ -101,29 +101,44 @@ function spl(text){
 }
 app.post('/api/resetPwd/:mail', (req,res)=>{
     let mail= spl(req.params.mail);
-    let password= strRandom({
-        includeUpperCase: true,
-        includeNumbers: true,
-        length: 10,
-        startsWithLowerCase: true
-    });
-    bcrypt.hash(password, saltRounds, function(err, hash) {
-        if(err){
-            return res.send(false)
-        }
-        pool.query(
-            "update utilisateurs set mdp=$1 where mail=$2",
-            [hash,mail],
-            (error, results) => {
-                if (error) {
-                    return res.send(false);
-                }
-                CreateMail(mail, password,res)
-                return res.send(true);              
+    pool.query(
+        "select mail from utilisateurs where mail=$1",
+        [mail],
+        (error, results) => {
+            if (error) {
+                return res.send(false);
             }
-        );
-    });
+            if(results.rows.length==0){
+                return res.send(false);
+            }      
+            else{
+                let password= strRandom({
+                    includeUpperCase: true,
+                    includeNumbers: true,
+                    length: 10,
+                    startsWithLowerCase: true
+                });
+                bcrypt.hash(password, saltRounds, function(err, hash) {
+                    if(err){
+                        return res.send(false)
+                    }
+                    pool.query(
+                        "update utilisateurs set mdp=$1 where mail=$2",
+                        [hash,mail],
+                        (errors, results) => {
+                            if (errors) {
+                                return res.send(false);
+                            }
+                            CreateMail(mail, password)
+                            return res.send(true);              
+                        }
+                    );
+                });
+            }     
+        }
+    );
 })
+
 
 function verifyToken(req,res,next){
     const bearerHeader= req.headers['authorization'];
