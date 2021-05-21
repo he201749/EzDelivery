@@ -1,6 +1,6 @@
 import React from 'react';  
 import { StyleSheet, Text, View,Modal, TouchableOpacity} from "react-native";
-import {server} from '../constante';
+import {server,instance} from '../constante';
 import axios from 'axios';
 import { Appbar} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -152,6 +152,7 @@ class ProfileScreen extends React.Component{
         let txtasync='deco'
         await AsyncStorage.setItem('token', txtasync);
         this.props.deconnect();
+
     }
     closemdpsucces=()=>{
         this.setState({mdpsuccesmodal:false})

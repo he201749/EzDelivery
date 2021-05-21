@@ -1,7 +1,3 @@
-FROM postgres:latest
+FROM postgres
 
-WORKDIR /home
-
-RUN apt-get update
-
-COPY ./creaDB.sql .
+COPY creaDB.sql /docker-entrypoint-initdb.d/

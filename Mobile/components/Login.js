@@ -1,6 +1,6 @@
 import React from 'react';  
 import { StyleSheet, Text, View,Modal, TouchableOpacity, ScrollView} from "react-native";
-import {server} from '../constante';
+import { server} from '../constante';
 import axios from 'axios';
 import CreerCompte from './CreerCompte';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -86,7 +86,6 @@ export default class Login extends React.Component{
     }
     connect= async() =>{
         if(this.state.mail!='' && this.state.mdp!=''){
-            
             let user={
                 mail: this.state.mail,
                 mdp: this.state.mdp
