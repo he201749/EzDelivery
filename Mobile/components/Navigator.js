@@ -50,7 +50,7 @@ export default class TabNavigator extends React.Component{
             <Tab.Screen
               name="Profil"
               options={{
-                tabBarLabel: 'Profile',
+                tabBarLabel: 'Profil',
                 tabBarIcon: ({ color }) => (
                   <Icon2
                     style={[{ color: color }]} size={25} name={'user'} />
